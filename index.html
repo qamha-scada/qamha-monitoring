@@ -1118,7 +1118,7 @@
     <div data-i18n="footerLine1">منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز</div>
     <div class="brand-footer">
       <div class="brand-owner">Designed and Implemented by Creativity Linkers Co.</div>
-      <div class="brand-version">Ver 2.4.3</div>
+      <div class="brand-version">Ver 2.4.8</div>
     </div>
   </footer>
 </div>
@@ -1434,11 +1434,14 @@
       <div style="font-weight:800;margin-bottom:8px;" data-i18n="fireSysAddNew">➕ إضافة منظومة جديدة</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <input type="text" id="newFireSysName" data-i18n-ph="fireSysNamePh" placeholder="اسم المنظومة (مثال: منظومة حريق الإدارة)" style="flex:2;min-width:180px;padding:8px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--card-border);color:var(--text-0);">
+        <input type="text" id="newFireSysId" dir="ltr" data-i18n-ph="fireSysIdPh" placeholder="معرّف الجهاز (اختياري، مثل: sys2)" style="flex:1;min-width:150px;padding:8px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--card-border);color:var(--text-0);font-family:Consolas,monospace;">
         <label style="display:flex;flex-direction:column;font-size:10px;color:var(--text-2);gap:2px;">
           <span data-i18n="fireMapCount">العدد</span>
           <input type="number" id="newFireSysZoneCount" min="1" max="32" value="4" style="width:80px;padding:8px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--card-border);color:var(--text-0);">
         </label>
         <button class="log-btn" onclick="addFireSystem()" data-i18n="fireSysCreate">➕ إنشاء</button>
+      </div>
+      <div style="font-size:11px;color:var(--text-2);margin-top:6px;" data-i18n="fireSysIdHelp">معرّف الجهاز لازم يطابق تماماً السطر SYSTEM_ID المكتوب بكود الفيرموير (مثل "sys2") حتى يترابط الجهاز مع هذي المنظومة تلقائياً. لو تركته فاضي، راح ينحسب معرّف عشوائي (تحتاج بعدها تاخذه من هذي القائمة وتحطه بالفيرموير).
       </div>
     </div>
   </div>
@@ -1531,6 +1534,10 @@ const I18N = {
     fireSysAdminTitle:'🏢 إدارة منظومات الحريق',
     fireSysAdminIntro:'أنشئ منظومة حريق مستقلة لكل مبنى/موقع (مثلاً: معمل المعجنات، الإدارة، السكن والمطعم)، وحدد عدد الزونات بداخلها. تكدر تعدل الاسم أو تضيف/تحذف/تسمي الزونات بأي وقت بعدها.',
     fireSysAddNew:'➕ إضافة منظومة جديدة', fireSysNamePh:'اسم المنظومة (مثال: منظومة حريق الإدارة)', fireSysCreate:'➕ إنشاء',
+    fireSysIdPh:'معرّف الجهاز (اختياري، مثل: sys2)',
+    fireSysIdHelp:'معرّف الجهاز لازم يطابق تماماً السطر SYSTEM_ID المكتوب بكود الفيرموير (مثل "sys2") حتى يترابط الجهاز مع هذي المنظومة تلقائياً. لو تركته فاضي، راح ينحسب معرّف عشوائي (تحتاج بعدها تاخذه من هذي القائمة وتحطه بالفيرموير).',
+    fireSysIdHint:'هذا هو المعرّف اللي لازم يطابق SYSTEM_ID بكود الفيرموير',
+    fireSysIdTaken:'هذا المعرّف مستخدم بمنظومة ثانية أصلاً - اختر معرّف مختلف',
     fireSysEdit:'تعديل', fireSysZonesLabel:'الزونات:', fireSysAddZone:'إضافة زون', fireSysSave:'حفظ', fireSysCancel:'إلغاء',
     fireSysZoneEnabledLabel:'مربوطة بدائرة', fireSysNameRequired:'اكتب اسم المنظومة أولاً', fireSysDeleteConfirm:'حذف هذي المنظومة نهائياً؟ (كل زوناتها وخريطتها بينحذفون)',
     fireAlertsPanelTitle:'🚨 التنبيهات النشطة', fireAlertsNone:'لا يوجد تنبيهات نشطة', fireAlertsSince:'منذ', minsShort:'د', secsShort:'ث',
@@ -1637,6 +1644,10 @@ const I18N = {
     fireSysAdminTitle:'🏢 Manage Fire Systems',
     fireSysAdminIntro:'Create an independent fire system for each building/site (e.g. Pastry Factory, Administration, Housing & Restaurant), and set how many zones it has. You can rename it or add/remove/rename zones anytime afterward.',
     fireSysAddNew:'➕ Add New System', fireSysNamePh:'System name (e.g. Administration Fire System)', fireSysCreate:'➕ Create',
+    fireSysIdPh:'Device ID (optional, e.g. sys2)',
+    fireSysIdHelp:'The device ID must exactly match the SYSTEM_ID line in the firmware code (e.g. "sys2") so the device links to this system automatically. If left blank, a random ID is generated (you will then need to copy it from this list into the firmware).',
+    fireSysIdHint:'This is the ID that must match SYSTEM_ID in the firmware code',
+    fireSysIdTaken:'This ID is already used by another system - choose a different one',
     fireSysEdit:'Edit', fireSysZonesLabel:'Zones:', fireSysAddZone:'Add Zone', fireSysSave:'Save', fireSysCancel:'Cancel',
     fireSysZoneEnabledLabel:'Circuit wired', fireSysNameRequired:'Enter a system name first', fireSysDeleteConfirm:'Permanently delete this system? (all its zones and map will be deleted)',
     fireAlertsPanelTitle:'🚨 Active Alerts', fireAlertsNone:'No active alerts right now', fireAlertsSince:'for', minsShort:'m', secsShort:'s',
@@ -4092,7 +4103,9 @@ function renderFireSystemsList(){
     const isEditing = editingFireSysId === sys.id;
     if(!isEditing){
       return `<div class="fire-sys-row">
-        <div><div class="fsr-name">${sys.name}</div><div class="fsr-count">${sys.zones.length} ${t('zoneWord')}</div></div>
+        <div><div class="fsr-name">${sys.name}</div><div class="fsr-count">${sys.zones.length} ${t('zoneWord')}</div>
+          <div style="font-size:10px;color:var(--text-2);direction:ltr;text-align:right;font-family:Consolas,monospace;" title="${t('fireSysIdHint')}">ID: ${sys.id}</div>
+        </div>
         <div style="display:flex;gap:6px;">
           <button class="log-btn" onclick="startEditFireSystem('${sys.id}')">✏️ ${t('fireSysEdit')}</button>
           <button class="log-btn" onclick="deleteFireSystem('${sys.id}')" ${fireSystems.length<=1?'disabled':''}>🗑️</button>
@@ -4159,16 +4172,28 @@ window.saveFireSystemEdits = function(sysId){
 };
 window.addFireSystem = function(){
   const nameInput = document.getElementById('newFireSysName');
+  const idInput = document.getElementById('newFireSysId');
   const countInput = document.getElementById('newFireSysZoneCount');
   const name = (nameInput.value||'').trim();
   if(!name){ alert(t('fireSysNameRequired')); return; }
+
+  // معرّف مخصص (اختياري) - لازم يطابق SYSTEM_ID بالفيرموير حرفياً. لو تركه
+  // المستخدم فاضي، نرجع لنفس السلوك القديم (معرّف عشوائي تلقائي)
+  let customId = (idInput ? idInput.value : '').trim();
+  customId = customId.replace(/[^a-zA-Z0-9_-]/g, ''); // بس حروف/أرقام/شرطة/شرطة سفلية (نفس ما يسمح به #define بالكود)
+  if(customId && fireSystems.some(s=>s.id===customId)){
+    alert(t('fireSysIdTaken'));
+    return;
+  }
+  const id = customId || uid('sys_');
+
   const count = Math.max(1, Math.min(32, parseInt(countInput.value,10)||4));
-  const sys = { id: uid('sys_'), name, zones: Array.from({length:count}, (_,i)=>({id:i+1, name:(currentLang==='ar'?'المنطقة ':'Zone ')+(i+1), enabled:true})) };
+  const sys = { id, name, zones: Array.from({length:count}, (_,i)=>({id:i+1, name:(currentLang==='ar'?'المنطقة ':'Zone ')+(i+1), enabled:true})) };
   fireSystems.push(sys);
   ensureFireSystemStorage(sys);
   persistFireSystems();
   subscribeFireSystemZones(sys);
-  nameInput.value=''; countInput.value=4;
+  nameInput.value=''; countInput.value=4; if(idInput) idInput.value='';
   renderFireSystemsList();
   refreshFireSystemSelectOptions();
 };
@@ -5218,48 +5243,18 @@ function subscribeFireSystemZones(sys){
     const key = sys.id+'|'+zoneDef.id;
     if(fireZoneSubsSet.has(key)) return;
     fireZoneSubsSet.add(key);
-    fbOnValue(fbRef(fbDb, 'fireZones/'+sys.id+'/'+zoneDef.id), (snap)=>{
-      const val = snap.val(); if(!val) return;
-      // زون تعلّم لاحقاً "مو مربوط بدائرة" من الإدارة - نتجاهل أي قراءة قديمة/متبقية له
-      // بفايربيس، حتى ما ترجعله حالة وهمية (نقرا التعريف الحالي مو المخزّن وقت الاشتراك)
-      const liveDef = (fireSystems.find(s=>s.id===sys.id)||{}).zones?.find(zd=>zd.id===zoneDef.id);
-      if(liveDef && liveDef.enabled===false) return;
-      const ts = (val.timestamp && Number(val.timestamp) > NTP_EPOCH_SANITY_MS_ZONES) ? Number(val.timestamp) : Date.now();
-      if(!lastSeenFireZone[sys.id]) lastSeenFireZone[sys.id] = {};
-      lastSeenFireZone[sys.id][zoneDef.id] = ts;
-      fireDeviceLastSeen[sys.id] = Math.max(fireDeviceLastSeen[sys.id]||0, ts);
-      fireDeviceOnlineLive[sys.id] = true;
-      if(val.fw) fireFwLive[sys.id] = val.fw;
-      const fresh = (Date.now() - ts) <= OFFLINE_THRESHOLD_MS;
-      const zoneState = (fireZoneLive[sys.id]||[]).find(z=>z.id===zoneDef.id);
-      if(zoneState) zoneState.status = fresh ? (val.status || 'normal') : 'offline';
-      // ملاحظة: فيرموير منظومة الحريق (fire-system-1.ino) صار يكتب مباشرة لمسار logs/fire/...
-      // من الجهاز نفسه (مستقل عن المتصفح تماماً)، فما عاد نكتب من هنا حتى نتجنب تكرار الصفوف بالسجل
-      if(sys.id === currentFireSystemId) renderFireZones(); else updateGlobalFireSirenAndBadge();
-    });
+    fbOnValue(fbRef(fbDb, 'fireZones/'+sys.id+'/'+zoneDef.id), (snap)=> applyFireZoneUpdate(sys, zoneDef, snap.val()));
   });
   // عطل عام باللوحة (مثلاً فقدان بطارية الاحتياط) - مسار منفصل عن الزونات
   // (fireZones/{sysId}/sysFault)، حتى ما يأثر على حالة أي زون فردي
   if(!fireSysFaultSubsSet.has(sys.id)){
     fireSysFaultSubsSet.add(sys.id);
-    fbOnValue(fbRef(fbDb, 'fireZones/'+sys.id+'/sysFault'), (snap)=>{
-      const val = snap.val();
-      // val=null يعني المسار ما وصلته أي بيانات إطلاقاً (الجهاز ما ربط ولا مرة) -
-      // نخليها null (= "بانتظار بيانات") بدل false، حتى ما نبين "سليم" كذباً
-      fireSysFaultLive[sys.id] = val ? !!val.fault : null;
-      if(val && val.timestamp){ fireDeviceLastSeen[sys.id] = Math.max(fireDeviceLastSeen[sys.id]||0, Number(val.timestamp)); fireDeviceOnlineLive[sys.id] = true; }
-      if(sys.id === currentFireSystemId) renderFireZones();
-    });
+    fbOnValue(fbRef(fbDb, 'fireZones/'+sys.id+'/sysFault'), (snap)=> applyFireSysFaultUpdate(sys, snap.val()));
   }
   // الإنذار العام (AUX) - قراءة مباشرة من طرف اللوحة، مسار منفصل عن الزونات كذلك
   if(!fireAuxSubsSet.has(sys.id)){
     fireAuxSubsSet.add(sys.id);
-    fbOnValue(fbRef(fbDb, 'fireZones/'+sys.id+'/auxFire'), (snap)=>{
-      const val = snap.val();
-      fireAuxLive[sys.id] = val ? !!val.active : null;
-      if(val && val.timestamp){ fireDeviceLastSeen[sys.id] = Math.max(fireDeviceLastSeen[sys.id]||0, Number(val.timestamp)); fireDeviceOnlineLive[sys.id] = true; }
-      if(sys.id === currentFireSystemId) renderFireZones();
-    });
+    fbOnValue(fbRef(fbDb, 'fireZones/'+sys.id+'/auxFire'), (snap)=> applyFireAuxUpdate(sys, snap.val()));
   }
   if(!fireMapSubsSet.has(sys.id)){
     fireMapSubsSet.add(sys.id);
@@ -5280,6 +5275,218 @@ function subscribeFireSystemZones(sys){
   }
 }
 
+/* ==========================================================
+   السيرفر المحلي (اللوكل نيتورك) - أولوية القراءة الحية
+   ==========================================================
+   المبدأ: فايربيس يبقى يشتغل دايماً بالخلفية (كل الإعدادات/الأسماء/الخرائط
+   تجيها منه فقط، ونادراً ما تتغير فهذا مقبول تماماً). بس القراءات الحية
+   (حريق/غاز/حركة/حرارة/طاقة) نحاول نجيبها بالتوازي من السيرفر المحلي كل
+   بضع ثواني - لو الجهاز اللي يفتح الداشبورد على نفس شبكة المعمل، السيرفر
+   المحلي يرد بسرعة وبيانات طازجة أول بأول (نفس مبدأ الفيرموير بالضبط: محاولة
+   دائمة للسيرفر المحلي، وفايربيس يبقى شغال أصلاً كخط احتياط تلقائي - لو
+   انقطع النت، فايربيس نفسه يتوقف عن التحديث لحاله بدون أي كود إضافي، ويبقى
+   السيرفر المحلي وحده يغذي الشاشة بالقراءات الطازجة).
+   ملاحظة "الرابط الذكي": السيرفر المحلي يشتغل بمنفذين بنفس الوقت - HTTP عادي
+   (3000) وHTTPS بشهادة ذاتية (3443). عشان نتجنب مشكلة Mixed Content (متصفحات
+   الويب تمنع صفحة مفتوحة بـhttps من عمل طلب http عادي)، نخلي بروتوكول طلبات
+   السيرفر المحلي يطابق بروتوكول الصفحة الحالية نفسها تلقائياً:
+   - لو المستخدم فاتح الداشبورد من الرابط السحابي https (GitHub Pages) وهو
+     داخل شبكة المعمل: نطلب https://<ip>:3443 من السيرفر المحلي (يتطلب انه
+     يكون سبق ووثّق الشهادة مرة وحدة بزيارة الرابط المباشر - راجع الدليل).
+   - لو المستخدم فاتح الداشبورد مباشرة من عنوان السيرفر المحلي نفسه (http)،
+     نطلب http://<ip>:3000 عادي بدون أي تعقيد شهادات.
+   لو ما فيه اتصال بالسيرفر المحلي أصلاً (خارج شبكة المعمل)، المحاولة تفشل
+   بهدوء وتستمر الشاشة تعتمد على فايربيس بس. */
+let localServerHost = localStorage.getItem('qamha_local_host') || '192.168.1.50';
+const LOCAL_HTTP_PORT = 3000;
+const LOCAL_HTTPS_PORT = 3443;
+function localScheme(){ return location.protocol === 'https:' ? 'https' : 'http'; }
+function localPort(){ return location.protocol === 'https:' ? LOCAL_HTTPS_PORT : LOCAL_HTTP_PORT; }
+let localPollTimer = null;
+let localServerLastOk = false;
+
+async function refreshLocalServerHostFromFirebase(){
+  if(!fbDb || !fbGet || !fbRef) return;
+  try{
+    const snap = await fbGet(fbRef(fbDb, 'systemConfig/localServerHost'));
+    const val = snap.exists() ? snap.val() : null;
+    if(val && typeof val === 'string' && val.length && val !== localServerHost){
+      localServerHost = val;
+      localStorage.setItem('qamha_local_host', val);
+    }
+  }catch(e){ /* طبيعي لو ما فيه نت وقت الفحص - نبقى نستخدم آخر قيمة محفوظة بالمتصفح */ }
+}
+
+function localUrl(path){ return localScheme()+'://'+localServerHost+':'+localPort()+'/'+path+'.json'; }
+
+async function fetchLocalPath(path, timeoutMs){
+  try{
+    const ctrl = new AbortController();
+    const timer = setTimeout(()=>ctrl.abort(), timeoutMs||2500);
+    const res = await fetch(localUrl(path), { signal: ctrl.signal, cache:'no-store' });
+    clearTimeout(timer);
+    if(!res.ok) return undefined;
+    return await res.json();
+  }catch(e){ return undefined; }
+}
+
+async function checkLocalServerHealth(){
+  try{
+    const ctrl = new AbortController();
+    const timer = setTimeout(()=>ctrl.abort(), 1500);
+    const res = await fetch(localScheme()+'://'+localServerHost+':'+localPort()+'/health', { signal: ctrl.signal, cache:'no-store' });
+    clearTimeout(timer);
+    return res.ok;
+  }catch(e){ return false; }
+}
+
+async function pollLocalOnce(){
+  const ok = await checkLocalServerHealth();
+  localServerLastOk = ok;
+  updateConnBadgeLabel();
+  if(!ok) return;
+
+  await Promise.all(WAREHOUSES.map(async w=>{
+    const val = await fetchLocalPath('warehouses/'+w.id);
+    if(val) applyWarehouseUpdate(w, val);
+  }));
+
+  await Promise.all(fireSystems.map(async sys=>{
+    await Promise.all((sys.zones||[]).map(async zoneDef=>{
+      const val = await fetchLocalPath('fireZones/'+sys.id+'/'+zoneDef.id);
+      if(val) applyFireZoneUpdate(sys, zoneDef, val);
+    }));
+    const faultVal = await fetchLocalPath('fireZones/'+sys.id+'/sysFault');
+    if(faultVal !== undefined) applyFireSysFaultUpdate(sys, faultVal);
+    const auxVal = await fetchLocalPath('fireZones/'+sys.id+'/auxFire');
+    if(auxVal !== undefined) applyFireAuxUpdate(sys, auxVal);
+  }));
+
+  await Promise.all(gasZones.map(async z=>{
+    const val = await fetchLocalPath('gasZones/'+z.id);
+    if(val) applyGasUpdate(z, val);
+  }));
+
+  await Promise.all(motionZones.map(async z=>{
+    const val = await fetchLocalPath('motionZones/'+z.id);
+    if(val) applyMotionUpdate(z, val);
+  }));
+
+  await Promise.all(POWER_SOURCES.flatMap(src=> POWER_PHASES.map(async ph=>{
+    const val = await fetchLocalPath('powerReadings/'+src.id+'/'+ph);
+    if(val) applyPowerPhaseUpdate(src, ph, val);
+  })));
+
+  await Promise.all(POWER_SOURCES.flatMap(src=> POWER_LL_PAIRS.map(async pair=>{
+    const val = await fetchLocalPath('powerReadings/'+src.id+'/LL/'+pair.id);
+    if(val !== undefined) applyPowerLLUpdate(src, pair, val);
+  })));
+}
+
+function startLocalPolling(){
+  if(localPollTimer) return;
+  pollLocalOnce();
+  localPollTimer = setInterval(pollLocalOnce, 4000);
+}
+
+/* ---------- دوال معالجة القراءات الحية - نفس المنطق يُستدعى سواء وصلت القيمة
+   من فايربيس (onValue) أو من السيرفر المحلي (استطلاع دوري) - بدون أي تكرار
+   للمنطق نفسه بمكانين ---------- */
+function applyWarehouseUpdate(w, val){
+  if(!val) return;
+  state[w.id]=val; renderStation(w,val); renderSummary();
+}
+
+function applyFireZoneUpdate(sys, zoneDef, val){
+  if(!val) return;
+  const liveDef = (fireSystems.find(s=>s.id===sys.id)||{}).zones?.find(zd=>zd.id===zoneDef.id);
+  if(liveDef && liveDef.enabled===false) return;
+  const ts = (val.timestamp && Number(val.timestamp) > NTP_EPOCH_SANITY_MS_ZONES) ? Number(val.timestamp) : Date.now();
+  if(!lastSeenFireZone[sys.id]) lastSeenFireZone[sys.id] = {};
+  lastSeenFireZone[sys.id][zoneDef.id] = ts;
+  fireDeviceLastSeen[sys.id] = Math.max(fireDeviceLastSeen[sys.id]||0, ts);
+  fireDeviceOnlineLive[sys.id] = true;
+  if(val.fw) fireFwLive[sys.id] = val.fw;
+  const fresh = (Date.now() - ts) <= OFFLINE_THRESHOLD_MS;
+  const zoneState = (fireZoneLive[sys.id]||[]).find(z=>z.id===zoneDef.id);
+  if(zoneState) zoneState.status = fresh ? (val.status || 'normal') : 'offline';
+  if(sys.id === currentFireSystemId) renderFireZones(); else updateGlobalFireSirenAndBadge();
+}
+
+function applyFireSysFaultUpdate(sys, val){
+  fireSysFaultLive[sys.id] = val ? !!val.fault : null;
+  if(val && val.timestamp){ fireDeviceLastSeen[sys.id] = Math.max(fireDeviceLastSeen[sys.id]||0, Number(val.timestamp)); fireDeviceOnlineLive[sys.id] = true; }
+  if(sys.id === currentFireSystemId) renderFireZones();
+}
+
+function applyFireAuxUpdate(sys, val){
+  fireAuxLive[sys.id] = val ? !!val.active : null;
+  if(val && val.timestamp){ fireDeviceLastSeen[sys.id] = Math.max(fireDeviceLastSeen[sys.id]||0, Number(val.timestamp)); fireDeviceOnlineLive[sys.id] = true; }
+  if(sys.id === currentFireSystemId) renderFireZones();
+}
+
+function applyGasUpdate(z, val){
+  if(!val) return;
+  const ts = (val.timestamp && Number(val.timestamp) > NTP_EPOCH_SANITY_MS_ZONES) ? Number(val.timestamp) : Date.now();
+  lastSeenGas[z.id] = ts;
+  gasLastSeenAny = Math.max(gasLastSeenAny, ts);
+  const fresh = (Date.now() - ts) <= OFFLINE_THRESHOLD_MS;
+  if(fresh){
+    z.ppm = (val.ppm!==undefined && val.ppm!==null && !isNaN(val.ppm)) ? Number(val.ppm) : null;
+    z.status = val.status || (z.ppm!==null ? gasStatusFromPpm(z.ppm) : 'fault');
+  } else {
+    z.status = 'offline'; z.ppm = null;
+  }
+  if(fresh) pushSystemLogEntry('gas', String(z.id), { ppm: z.ppm, status: z.status });
+  renderGasZones();
+}
+
+function applyMotionUpdate(z, val){
+  if(!val) return;
+  const ts = (val.timestamp && Number(val.timestamp) > NTP_EPOCH_SANITY_MS_ZONES) ? Number(val.timestamp) : Date.now();
+  lastSeenMotion[z.id] = ts;
+  motionLastSeenAny = Math.max(motionLastSeenAny, ts);
+  const fresh = (Date.now() - ts) <= OFFLINE_THRESHOLD_MS;
+  z.status = fresh ? (val.status || 'normal') : 'offline';
+  if(fresh) pushSystemLogEntry('motion', String(z.id), { status: z.status });
+  renderMotionZones();
+}
+
+function applyPowerPhaseUpdate(src, ph, val){
+  if(!val) return;
+  const ts = (val.timestamp && Number(val.timestamp) > NTP_EPOCH_SANITY_MS_ZONES) ? Number(val.timestamp) : Date.now();
+  const key = src.id+'|'+ph;
+  lastSeenPower[key] = ts;
+  powerLastSeenAny = Math.max(powerLastSeenAny, ts);
+  const fresh = (Date.now() - ts) <= OFFLINE_THRESHOLD_MS;
+  const d = powerData[src.id][ph];
+  if(fresh){
+    d.voltage = (val.voltage!==undefined && val.voltage!==null && !isNaN(val.voltage)) ? Number(val.voltage) : null;
+    d.current = (val.current!==undefined && val.current!==null && !isNaN(val.current)) ? Number(val.current) : null;
+    d.freq = (val.freq!==undefined && val.freq!==null && !isNaN(val.freq)) ? Number(val.freq) : null;
+    d.power = (val.power!==undefined && val.power!==null && !isNaN(val.power)) ? Number(val.power) : null;
+    d.energy = (val.energy!==undefined && val.energy!==null && !isNaN(val.energy)) ? Number(val.energy) : null;
+    d.pf = (val.pf!==undefined && val.pf!==null && !isNaN(val.pf)) ? Number(val.pf) : null;
+  } else {
+    d.voltage=null; d.current=null; d.freq=null; d.power=null;
+  }
+  if(fresh) pushPowerLogSnapshot(src.id);
+  renderPowerAll();
+}
+
+function applyPowerLLUpdate(src, pair, val){
+  if(val==null) return;
+  const ts = (val && val.timestamp && Number(val.timestamp) > NTP_EPOCH_SANITY_MS_ZONES) ? Number(val.timestamp) : Date.now();
+  const key = src.id+'|LL|'+pair.id;
+  lastSeenPower[key] = ts;
+  powerLastSeenAny = Math.max(powerLastSeenAny, ts);
+  const fresh = (Date.now() - ts) <= OFFLINE_THRESHOLD_MS;
+  const d = powerData[src.id].ll[pair.id];
+  const rawV = (val && typeof val === 'object') ? val.voltage : val;
+  d.voltage = fresh && rawV!==undefined && rawV!==null && !isNaN(rawV) ? Number(rawV) : (fresh ? d.voltage : null);
+  renderPowerAll();
+}
+
 async function tryConnectFirebase(){
   if(firebaseConfig.apiKey === "YOUR_API_KEY"){ setConnBadge(false); console.error('Firebase config missing — set firebaseConfig with real project credentials.'); return; }
   try{
@@ -5290,7 +5497,7 @@ async function tryConnectFirebase(){
     fbDb = db; fbRef = ref; fbSet = set; fbQuery = query; fbOrderByKey = orderByKey; fbStartAt = startAt; fbEndAt = endAt; fbGet = get; fbLimitToLast = limitToLast; fbOnValue = onValue;
     setConnBadge(true);
     WAREHOUSES.forEach(w=>{
-      onValue(ref(db, 'warehouses/'+w.id), (snap)=>{ const val=snap.val(); if(!val) return; state[w.id]=val; renderStation(w,val); renderSummary(); });
+      onValue(ref(db, 'warehouses/'+w.id), (snap)=> applyWarehouseUpdate(w, snap.val()));
     });
     // منظومات الحريق: تتزامن قائمة المنظومات نفسها (الأسماء وعدد الزونات) من فايربيس أولاً
     // حتى تنطلع نفس القائمة بكل جهاز يفتح الداشبورد، وبعدها نشترك بقراءات كل زون بكل منظومة -
@@ -5310,70 +5517,16 @@ async function tryConnectFirebase(){
       fireSystems.forEach(subscribeFireSystemZones);
     });
     gasZones.forEach(z=>{
-      onValue(ref(db, 'gasZones/'+z.id), (snap)=>{
-        const val = snap.val(); if(!val) return;
-        const ts = (val.timestamp && Number(val.timestamp) > NTP_EPOCH_SANITY_MS_ZONES) ? Number(val.timestamp) : Date.now();
-        lastSeenGas[z.id] = ts;
-        gasLastSeenAny = Math.max(gasLastSeenAny, ts);
-        const fresh = (Date.now() - ts) <= OFFLINE_THRESHOLD_MS;
-        if(fresh){
-          z.ppm = (val.ppm!==undefined && val.ppm!==null && !isNaN(val.ppm)) ? Number(val.ppm) : null;
-          z.status = val.status || (z.ppm!==null ? gasStatusFromPpm(z.ppm) : 'fault');
-        } else {
-          z.status = 'offline'; z.ppm = null;
-        }
-        if(fresh) pushSystemLogEntry('gas', String(z.id), { ppm: z.ppm, status: z.status });
-        renderGasZones();
-      });
+      onValue(ref(db, 'gasZones/'+z.id), (snap)=> applyGasUpdate(z, snap.val()));
     });
     motionZones.forEach(z=>{
-      onValue(ref(db, 'motionZones/'+z.id), (snap)=>{
-        const val = snap.val(); if(!val) return;
-        const ts = (val.timestamp && Number(val.timestamp) > NTP_EPOCH_SANITY_MS_ZONES) ? Number(val.timestamp) : Date.now();
-        lastSeenMotion[z.id] = ts;
-        motionLastSeenAny = Math.max(motionLastSeenAny, ts);
-        const fresh = (Date.now() - ts) <= OFFLINE_THRESHOLD_MS;
-        z.status = fresh ? (val.status || 'normal') : 'offline';
-        if(fresh) pushSystemLogEntry('motion', String(z.id), { status: z.status });
-        renderMotionZones();
-      });
+      onValue(ref(db, 'motionZones/'+z.id), (snap)=> applyMotionUpdate(z, snap.val()));
     });
     POWER_SOURCES.forEach(src=> POWER_PHASES.forEach(ph=>{
-      onValue(ref(db, 'powerReadings/'+src.id+'/'+ph), (snap)=>{
-        const val = snap.val(); if(!val) return;
-        const ts = (val.timestamp && Number(val.timestamp) > NTP_EPOCH_SANITY_MS_ZONES) ? Number(val.timestamp) : Date.now();
-        const key = src.id+'|'+ph;
-        lastSeenPower[key] = ts;
-        powerLastSeenAny = Math.max(powerLastSeenAny, ts);
-        const fresh = (Date.now() - ts) <= OFFLINE_THRESHOLD_MS;
-        const d = powerData[src.id][ph];
-        if(fresh){
-          d.voltage = (val.voltage!==undefined && val.voltage!==null && !isNaN(val.voltage)) ? Number(val.voltage) : null;
-          d.current = (val.current!==undefined && val.current!==null && !isNaN(val.current)) ? Number(val.current) : null;
-          d.freq = (val.freq!==undefined && val.freq!==null && !isNaN(val.freq)) ? Number(val.freq) : null;
-          d.power = (val.power!==undefined && val.power!==null && !isNaN(val.power)) ? Number(val.power) : null;
-          d.energy = (val.energy!==undefined && val.energy!==null && !isNaN(val.energy)) ? Number(val.energy) : null;
-          d.pf = (val.pf!==undefined && val.pf!==null && !isNaN(val.pf)) ? Number(val.pf) : null;
-        } else {
-          d.voltage=null; d.current=null; d.freq=null; d.power=null;
-        }
-        if(fresh) pushPowerLogSnapshot(src.id);
-        renderPowerAll();
-      });
+      onValue(ref(db, 'powerReadings/'+src.id+'/'+ph), (snap)=> applyPowerPhaseUpdate(src, ph, snap.val()));
     }));
     POWER_SOURCES.forEach(src=> POWER_LL_PAIRS.forEach(pair=>{
-      onValue(ref(db, 'powerReadings/'+src.id+'/LL/'+pair.id), (snap)=>{
-        const val = snap.val(); if(val==null) return;
-        const ts = (val && val.timestamp && Number(val.timestamp) > NTP_EPOCH_SANITY_MS_ZONES) ? Number(val.timestamp) : Date.now();
-        const key = src.id+'|LL|'+pair.id;
-        lastSeenPower[key] = ts;
-        powerLastSeenAny = Math.max(powerLastSeenAny, ts);
-        const fresh = (Date.now() - ts) <= OFFLINE_THRESHOLD_MS;
-        const d = powerData[src.id].ll[pair.id];
-        const rawV = (val && typeof val === 'object') ? val.voltage : val;
-        d.voltage = fresh && rawV!==undefined && rawV!==null && !isNaN(rawV) ? Number(rawV) : (fresh ? d.voltage : null);
-        renderPowerAll();
-      });
+      onValue(ref(db, 'powerReadings/'+src.id+'/LL/'+pair.id), (snap)=> applyPowerLLUpdate(src, pair, snap.val()));
     }));
     onValue(ref(db, 'powerThresholdsConfig'), (snap)=>{
       const val = snap.val();
@@ -5414,9 +5567,19 @@ async function tryConnectFirebase(){
     });
   }catch(e){ console.error('Firebase connect failed:', e); setConnBadge(false); }
 }
+let firebaseOnlineState = false;
 function setConnBadge(online){
+  firebaseOnlineState = online;
+  updateConnBadgeLabel();
+}
+// شارة الاتصال تصير تعكس مصدر البيانات الفعلي: لو السيرفر المحلي يرد حالياً
+// (نفس شبكة المعمل) نبين "Live (LAN)" بغض النظر عن حالة فايربيس، وإلا نرجع
+// لحالة فايربيس العادية - هذا يخلي المستخدم يعرف لحظياً وين مصدر القراءات
+function updateConnBadgeLabel(){
   const badge=document.getElementById('connBadge'), text=document.getElementById('connText');
-  badge.classList.toggle('offline', !online); text.textContent = online ? 'Live' : 'Offline';
+  const online = localServerLastOk || firebaseOnlineState;
+  badge.classList.toggle('offline', !online);
+  text.textContent = localServerLastOk ? 'Live (LAN)' : (firebaseOnlineState ? 'Live' : 'Offline');
 }
 
 /* ---------- Init ---------- */
@@ -5444,7 +5607,12 @@ function init(){
   document.getElementById('motionMapMainContainer').addEventListener('click', ()=> window.removeSimpleMapPopup());
   document.getElementById('simpleMapViewContainer').addEventListener('click', ()=> window.removeSimpleMapPopup());
   initSimpleMapResizeObserver();
-  tryConnectFirebase();
+  tryConnectFirebase().then(()=> refreshLocalServerHostFromFirebase());
+  // نبدأ محاولات السيرفر المحلي من فتح الصفحة مباشرة (مستقلة تماماً عن فايربيس) -
+  // إذا الجهاز اللي يفتح الداشبورد على نفس شبكة المعمل، راح يوصل له بسرعة ويصير
+  // هو مصدر القراءات الحية الفعلي؛ إذا لا، تفشل المحاولات بهدوء والداشبورد تبقى
+  // معتمدة على فايربيس بس (بدون أي تأثير على تجربة الاستخدام)
+  startLocalPolling();
   if('Notification' in window && Notification.permission==='granted' && localStorage.getItem('qamha_fcm_token')){
     const btn = document.getElementById('notifyBtn');
     if(btn){ btn.textContent = '🔔'; btn.title = 'Notifications enabled'; btn.style.color = 'var(--ok)'; }

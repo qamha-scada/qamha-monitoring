@@ -4,14 +4,21 @@
    - يستقبل إشعارات Push حتى إذا المتصفح/التطبيق مسكر (عن طريق Firebase Cloud Messaging)
    ========================================================== */
 
-const CACHE_NAME = 'qamha-scada-v2';
+const CACHE_NAME = 'qamha-scada-v7';
 const CACHE_FILES = ['./index.html', './manifest.json', './icon.svg', './icon-192.png', './icon-512.png'];
 
+// ملاحظة: ما نستدعي skipWaiting() هنا تلقائياً - نخلي أي نسخة جديدة توصل تبقى
+// "بانتظار" لحد ما المستخدم نفسه يوافق على التحديث من الصفحة (شريط "يتوفر تحديث
+// جديد")، حتى ما ينقلب التطبيق تحته وهو يستخدمه بدون علمه. الصفحة ترسل رسالة
+// SKIP_WAITING بعد موافقة المستخدم (شوف معالج الرسائل تحت).
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(CACHE_FILES).catch(() => {}))
   );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -24,9 +31,22 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // شبكة أولاً، وإذا ما فيه اتصال نرجع النسخة المخزنة (تصفح بسيط بدون نت)
+  // شبكة أولاً، وإذا ما فيه اتصال نرجع النسخة المخزنة (تصفح بسيط بدون نت).
+  // كمان: أي طلب ينجح (حتى لو لمكتبة خارجية من CDN، مثل مكتبة فايربيس أو xlsx/pdf)
+  // نخزن نسخة منه بالكاش تلقائياً وقت النجاح - بدون ما نحتاج نحدد مسبقاً كل
+  // مكتبة نستخدمها بـCACHE_FILES. هذا يخلي التطبيق يشتغل بالكامل حتى بدون
+  // إنترنت طالما فُتح مرة وحدة ناجحة سابقاً (كل مكتبات فايربيس المطلوبة للدخول
+  // وعرض البيانات صارت متوفرة أوفلاين تلقائياً).
+  const req = event.request;
+  if (req.method !== 'GET') return; // ما نخزن أي طلب كتابة (POST/PATCH..)
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    fetch(req).then((response) => {
+      if (response && response.status === 200) {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(req, clone)).catch(() => {});
+      }
+      return response;
+    }).catch(() => caches.match(req))
   );
 });
 
