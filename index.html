@@ -690,7 +690,22 @@
   body.fs-mode .zone-tile .zstatus{ font-size:6px; }
   body.fs-mode .zone-tile .zval{ font-size:6px; margin-top:1px; }
   body.fs-mode #section-fire .zones-grid, body.fs-mode #section-gas .zones-grid, body.fs-mode #section-motion .zones-grid{ display:none; }
-  body.fs-mode .fire-general-col{ display:none; }
+  /* المربعات الثلاثة (الاتصال/العطل/الإنذار العام) - تبقى ظاهرة بوضع الكشك بس كصف أفقي مصغر فوق الخريطة بدل عامود جانبي */
+  body.fs-mode .fire-general-col{ display:flex; flex-direction:row; flex-wrap:wrap; width:100%; flex:0 0 auto; gap:6px; }
+  body.fs-mode .fire-general-col .fire-general-box{ flex:1 1 0; min-width:0; padding:5px 8px; }
+  body.fs-mode .fire-general-col .fgb-label{ font-size:8.5px; }
+  body.fs-mode .fire-general-col .fgb-value{ font-size:10.5px; }
+  body.fs-mode .fire-general-col .fgb-age, body.fs-mode .fire-general-col .fgb-fw{ display:none; }
+  /* شريط مصغر لحالة كل زونات منظومة الحريق - يبين فوق الخريطة مباشرة بوضع الكشك فقط (إضافة، ما يأثر على مكان بلوكات الزونات الأصلية بالعرض العادي) */
+  .fire-fs-zone-strip{ display:none; }
+  body.fs-mode #fireFsZoneStrip{ display:flex; flex-wrap:wrap; gap:4px; padding:2px 0 8px; flex:0 0 auto; }
+  .fire-fs-zone-strip .fs-zchip{ display:flex; align-items:center; gap:4px; padding:3px 9px; border-radius:8px; border:1px solid var(--card-border); background:rgba(255,255,255,0.03); font-size:10px; font-weight:800; white-space:nowrap; }
+  .fire-fs-zone-strip .fs-zchip .zn{ opacity:.65; }
+  .fire-fs-zone-strip .fs-zchip.normal, .fire-fs-zone-strip .fs-zchip.safe{ border-color: rgba(46,230,166,.4); color:var(--ok); }
+  .fire-fs-zone-strip .fs-zchip.offline{ border-color: rgba(154,160,172,.35); opacity:.6; }
+  .fire-fs-zone-strip .fs-zchip.disabled{ opacity:.35; }
+  .fire-fs-zone-strip .fs-zchip.fault{ border-color: rgba(255,176,32,.4); color:var(--warn); }
+  .fire-fs-zone-strip .fs-zchip.alarm, .fire-fs-zone-strip .fs-zchip.danger{ border-color: rgba(255,59,92,.8); background: rgba(255,59,92,.14); color:var(--danger); animation: zoneAlarm .9s ease-in-out infinite; }
   body.fs-mode .fire-map-block{ display:flex; flex-direction:column; flex:1 1 0; min-height:0; margin-top:6px; }
   body.fs-mode .fire-map-block > .zone-title{ display:none; }
   /* وضع الكشك (fullscreen) يعرض الخريطة الحية المدمجة مباشرة بدل بطاقات الأيقونات - أوضح لشاشة عرض ثابتة، بنفس الطريقة لكل من الحريق والغاز والحركة */
@@ -879,6 +894,19 @@
           <button class="admin-card-btn primary" onclick="openFireSystemsAdmin()"><span data-i18n="adminCardOpenFireSys">🔥 فتح إدارة منظومات الحريق</span> <span class="arrow">←</span></button>
         </div>
       </div>
+
+      <div class="admin-card">
+        <div class="admin-card-head">
+          <span class="admin-card-icon">🖥️</span>
+          <div>
+            <div class="admin-card-title" data-i18n="adminCardLocalServerTitle">السيرفر المحلي (اللوكل نيتورك)</div>
+          </div>
+        </div>
+        <div class="admin-card-desc" data-i18n="adminCardLocalServerDesc">تحديث عنوان IP لجهاز السيرفر المحلي وقت ما يتغيّر، بدون أي حاجة لتعديل كود أو رفع فيرموير جديد.</div>
+        <div class="admin-card-actions">
+          <a class="admin-card-btn primary" href="server-config.html" target="_blank" rel="noopener"><span data-i18n="adminCardOpenLocalServer">🖥️ فتح إعدادات السيرفر المحلي</span> <span class="arrow">←</span></a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1004,6 +1032,7 @@
           <span class="fire-map-filter-note" id="fireMapFilterNote" style="display:none;"></span>
         </div>
         <div class="map-cards-grid" id="fireMapCardsGrid"></div>
+        <div class="fire-fs-zone-strip" id="fireFsZoneStrip"></div>
         <div class="map-container" id="fireMapMainContainer">
           <div class="map-empty" id="fireMapMainEmpty" data-i18n="fireMapEmptyMain">لا توجد خريطة مرفوعة بعد — أضفها من ⚙️ الإدارة</div>
         </div>
@@ -1489,6 +1518,7 @@ const I18N = {
     adminCardMapsTitle:'الخرائط وتفاصيلها', adminCardMapsDesc:'رفع مخططات الموقع وتحديد أماكن المتحسسات على الخريطة لكل منظومة على حدة.',
     adminCardOpenFireMap:'🔥 خريطة منظومة الحريق', adminCardOpenGasMap:'🛢️ خريطة منظومة الغاز', adminCardOpenMotionMap:'🚶 خريطة منظومة الحركة',
     adminCardFireSysTitle:'منظومات الحريق', adminCardFireSysDesc:'إضافة أو تعديل أو حذف منظومات الحريق المستقلة (لكل منظومة زوناتها وحساساتها الخاصة).', adminCardOpenFireSys:'🔥 فتح إدارة منظومات الحريق',
+    adminCardLocalServerTitle:'السيرفر المحلي (اللوكل نيتورك)', adminCardLocalServerDesc:'تحديث عنوان IP لجهاز السيرفر المحلي وقت ما يتغيّر، بدون أي حاجة لتعديل كود أو رفع فيرموير جديد.', adminCardOpenLocalServer:'🖥️ فتح إعدادات السيرفر المحلي',
     adminTitle:'⚙️ إعدادات النظام (الرينج المسموح)',
     adminIntro:'حدد المدى الطبيعي للحرارة والرطوبة لكل مخزن — خارج هذا المدى تتغير الحالة تلقائياً لصاعدة أو نازلة.',
     tempRangeLabel:'الحرارة °م', humRangeLabel:'الرطوبة %', minLabel:'من', maxLabel:'إلى', adminSave:'💾 حفظ الإعدادات',
@@ -1594,6 +1624,7 @@ const I18N = {
     adminCardMapsTitle:'Maps & Details', adminCardMapsDesc:'Upload site layouts and place each sensor on the map, per system.',
     adminCardOpenFireMap:'🔥 Fire system map', adminCardOpenGasMap:'🛢️ Gas system map', adminCardOpenMotionMap:'🚶 Motion system map',
     adminCardFireSysTitle:'Fire Systems', adminCardFireSysDesc:'Add, edit, or delete independent fire systems (each with its own zones and sensors).', adminCardOpenFireSys:'🔥 Open fire systems management',
+    adminCardLocalServerTitle:'Local Server (LAN)', adminCardLocalServerDesc:'Update the local server IP address whenever it changes, without editing any code or re-uploading firmware.', adminCardOpenLocalServer:'🖥️ Open local server settings',
     adminTitle:'⚙️ System Settings (Allowed Range)',
     adminIntro:'Set the normal temperature/humidity range per warehouse — outside this range status switches to rising or falling automatically.',
     tempRangeLabel:'Temp °C', humRangeLabel:'Humidity %', minLabel:'Min', maxLabel:'Max', adminSave:'💾 Save Settings',
@@ -3285,6 +3316,7 @@ function stopSiren(){
 }
 function buildFireZones(){
   const grid = document.getElementById('fireZonesGrid'); grid.innerHTML='';
+  const strip = document.getElementById('fireFsZoneStrip'); if(strip) strip.innerHTML='';
   const sysIdAtBuildTime = currentFireSystemId; // نثبتها بوقت البناء حتى الضغط يودي لنفس الزون بنفس المنظومة الصح دائماً
   const sysDef = currentFireSystem();
   fireZones.forEach(z=>{
@@ -3301,6 +3333,13 @@ function buildFireZones(){
       tile.onclick = ()=> window.goToFireZone(sysIdAtBuildTime, z.id);
     }
     grid.appendChild(tile);
+    // شريط مصغر مطابق - يبين بوضع الكشك بس فوق الخريطة (زر مختصر بنفس حالة البلوك الأصلي)
+    if(strip){
+      const chip = document.createElement('div'); chip.className='fs-zchip '+(noCircuit?'disabled':'offline'); chip.id='fireFsZoneStrip-z'+z.id;
+      chip.innerHTML = `<span class="zn">${z.id}</span><span class="zicon">${noCircuit?'—':'⛔'}</span>`;
+      if(!noCircuit) chip.onclick = ()=> window.goToFireZone(sysIdAtBuildTime, z.id);
+      strip.appendChild(chip);
+    }
   });
 }
 function renderFireZones(){
@@ -3314,6 +3353,7 @@ function renderFireZones(){
   const sysDef = currentFireSystem();
   fireZones.forEach(z=>{
     const tile = document.getElementById('fireZonesGrid-z'+z.id); if(!tile) return;
+    const chip = document.getElementById('fireFsZoneStrip-z'+z.id);
     const zoneDef = sysDef.zones.find(zd=>zd.id===z.id);
     if(zoneDef && zoneDef.enabled===false){
       // زون مو مربوط بأي دائرة - نثبت عرضه على "لا يوجد دائرة مرتبطة" ونستثنيه بالكامل
@@ -3321,12 +3361,14 @@ function renderFireZones(){
       tile.className = 'zone-tile disabled';
       tile.querySelector('.zicon').textContent = '—';
       tile.querySelector('.zstatus').textContent = t('fireStatusNoCircuit');
+      if(chip){ chip.className='fs-zchip disabled'; chip.querySelector('.zicon').textContent = '—'; }
       return;
     }
     const displayStatus = (z.status==='disconnected') ? 'offline' : z.status;
     tile.className = 'zone-tile ' + displayStatus;
     tile.querySelector('.zicon').textContent = iconMap[z.status] || iconMap.offline;
     tile.querySelector('.zstatus').textContent = t(keyMap[z.status] || keyMap.offline);
+    if(chip){ chip.className = 'fs-zchip ' + displayStatus; chip.querySelector('.zicon').textContent = iconMap[z.status] || iconMap.offline; }
     if(z.status!=='offline') connectedCount++; // زون "disconnected" لسا يعتبر جهازه متصل، بس الدائرة نفسها غير مربوطة
     if(z.status==='alarm') alarmCount++;
     if(z.status==='fault') faultCount++;

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إعدادات السيرفر المحلي - Qamha Scada</title>
+<style>
+  :root{
+    --bg:#060a12; --panel:#0f1826; --panel2:#0a1220; --border:#1e2c40;
+    --text:#e8eef7; --muted:#8ea0b8; --accent:#2e74b5; --accent2:#3b8fd6;
+    --ok:#2ecc71; --err:#e74c3c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+    font-family:"Segoe UI", Tahoma, Arial, sans-serif;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .card{
+    width:100%; max-width:460px; background:var(--panel); border:1px solid var(--border);
+    border-radius:14px; padding:28px 26px; box-shadow:0 10px 40px rgba(0,0,0,.35);
+  }
+  h1{ font-size:20px; margin:0 0 4px; text-align:center; }
+  .sub{ color:var(--muted); font-size:13px; text-align:center; margin:0 0 22px; }
+  label{ display:block; font-size:13px; color:var(--muted); margin:14px 0 6px; }
+  input[type=email], input[type=password], input[type=text]{
+    width:100%; padding:11px 12px; border-radius:8px; border:1px solid var(--border);
+    background:var(--panel2); color:var(--text); font-size:15px; outline:none;
+  }
+  input:focus{ border-color:var(--accent2); }
+  button{
+    width:100%; margin-top:18px; padding:12px; border:none; border-radius:8px;
+    background:var(--accent); color:#fff; font-size:15px; font-weight:600; cursor:pointer;
+  }
+  button:hover{ background:var(--accent2); }
+  button:disabled{ opacity:.6; cursor:not-allowed; }
+  .msg{ margin-top:14px; font-size:13px; text-align:center; min-height:18px; }
+  .msg.err{ color:var(--err); }
+  .msg.ok{ color:var(--ok); }
+  .hidden{ display:none !important; }
+  .current-val{
+    background:var(--panel2); border:1px solid var(--border); border-radius:8px;
+    padding:10px 12px; font-size:14px; color:var(--muted); margin-top:6px;
+    direction:ltr; text-align:left; font-family:Consolas,monospace;
+  }
+  .field-help{ font-size:12px; color:var(--muted); margin-top:6px; line-height:1.6; }
+  .top-user{ font-size:12px; color:var(--muted); text-align:center; margin-bottom:6px; }
+  a.back{ display:block; text-align:center; margin-top:16px; color:var(--accent2); font-size:13px; text-decoration:none; }
+  a.back:hover{ text-decoration:underline; }
+  .spinner{ text-align:center; color:var(--muted); font-size:14px; padding:30px 0; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>🖥️ إعدادات السيرفر المحلي</h1>
+  <p class="sub">تحديث عنوان IP لجهاز السيرفر المحلي — بدون أي حاجة لتعديل كود أو رفع فيرموير جديد</p>
+
+  <div id="loadingBox" class="spinner">جاري التحقق من تسجيل الدخول...</div>
+
+  <!-- شاشة تسجيل الدخول -->
+  <div id="loginBox" class="hidden">
+    <label for="email">البريد الإلكتروني</label>
+    <input type="email" id="email" autocomplete="username">
+    <label for="pass">كلمة المرور</label>
+    <input type="password" id="pass" autocomplete="current-password">
+    <button id="loginBtn">دخول</button>
+    <div class="msg err" id="loginMsg"></div>
+  </div>
+
+  <!-- شاشة "ليس لديك صلاحية" -->
+  <div id="noPermBox" class="hidden">
+    <div class="msg err">هذه الصفحة مخصصة لحسابات الإدارة (Admin) فقط. الحساب المسجّل حالياً ليس له هذه الصلاحية.</div>
+  </div>
+
+  <!-- شاشة الإعدادات الفعلية -->
+  <div id="settingsBox" class="hidden">
+    <div class="top-user" id="userLabel"></div>
+    <label>القيمة الحالية المحفوظة الآن:</label>
+    <div class="current-val" id="currentVal">—</div>
+
+    <label for="hostInput">عنوان IP الجديد للسيرفر المحلي</label>
+    <input type="text" id="hostInput" placeholder="مثال: 10.88.226.34" dir="ltr">
+    <div class="field-help">اكتب بس رقم الـIP (بدون http:// وبدون رقم المنفذ). تقدر تشوف هذا الرقم من رسالة تشغيل السيرفر المحلي بجهاز الويندوز.</div>
+
+    <button id="saveBtn">💾 حفظ التحديث</button>
+    <div class="msg" id="saveMsg"></div>
+  </div>
+
+  <a class="back" href="index.html">← رجوع للداشبورد</a>
+</div>
+
+<script type="module">
+const firebaseConfig = { apiKey:"AIzaSyAvNfgUCEmVikT-IE0XvE5s3SRFfwm5gLA", databaseURL:"https://qamha-metering-default-rtdb.europe-west1.firebasedatabase.app", projectId:"qamha-metering",
+  messagingSenderId:"877494683287", appId:"1:877494683287:web:600c1ef1417e74a6f14bd2" };
+
+const CONFIG_PATH = 'systemConfig/localServerHost';
+
+const loadingBox = document.getElementById('loadingBox');
+const loginBox = document.getElementById('loginBox');
+const noPermBox = document.getElementById('noPermBox');
+const settingsBox = document.getElementById('settingsBox');
+const loginMsg = document.getElementById('loginMsg');
+const saveMsg = document.getElementById('saveMsg');
+const currentVal = document.getElementById('currentVal');
+const hostInput = document.getElementById('hostInput');
+const userLabel = document.getElementById('userLabel');
+
+function showOnly(el){
+  [loadingBox, loginBox, noPermBox, settingsBox].forEach(b => b.classList.add('hidden'));
+  el.classList.remove('hidden');
+}
+
+let dbRefFn, dbGetFn, dbSetFn, database;
+
+async function boot(){
+  try{
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    const { getAuth, onAuthStateChanged, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+    const { getDatabase, ref, get, set } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
+
+    const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    database = getDatabase(app);
+    dbRefFn = ref; dbGetFn = get; dbSetFn = set;
+
+    await setPersistence(auth, browserLocalPersistence).catch(()=>{});
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      loginMsg.textContent = '';
+      const email = document.getElementById('email').value.trim();
+      const pass = document.getElementById('pass').value;
+      if(!email || !pass){ loginMsg.textContent = 'أدخل البريد وكلمة المرور'; return; }
+      try{
+        await signInWithEmailAndPassword(auth, email, pass);
+      }catch(e){
+        loginMsg.textContent = 'بيانات الدخول غير صحيحة';
+      }
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if(!user){ showOnly(loginBox); return; }
+      showOnly(loadingBox);
+      loadingBox.textContent = 'جاري التحقق من الصلاحيات...';
+      try{
+        const profSnap = await get(ref(database, 'users/'+user.uid));
+        const profile = profSnap.exists() ? profSnap.val() : null;
+        if(!profile || profile.disabled || !profile.isAdmin){
+          showOnly(noPermBox);
+          return;
+        }
+        userLabel.textContent = 'مسجّل دخول بحساب: ' + (profile.email || user.email || '');
+        const cfgSnap = await get(ref(database, CONFIG_PATH));
+        const val = cfgSnap.exists() ? cfgSnap.val() : null;
+        currentVal.textContent = val ? val : 'ما فيه قيمة محفوظة بعد';
+        if(val) hostInput.value = val;
+        showOnly(settingsBox);
+      }catch(e){
+        console.error(e);
+        loadingBox.textContent = 'صار خطأ بالتحقق - جرب أعد تحميل الصفحة';
+        showOnly(loadingBox);
+      }
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      saveMsg.className = 'msg';
+      saveMsg.textContent = '';
+      let newHost = hostInput.value.trim();
+      // تنظيف بسيط: لو المستخدم حط http:// أو رقم منفذ بالغلط، نشيلهم تلقائياً
+      newHost = newHost.replace(/^https?:\/\//i, '').replace(/\/.*/,'').replace(/:\d+$/,'');
+      if(!newHost){ saveMsg.classList.add('err'); saveMsg.textContent = 'اكتب عنوان IP صحيح'; return; }
+
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+      try{
+        await dbSetFn(dbRefFn(database, CONFIG_PATH), newHost);
+        currentVal.textContent = newHost;
+        saveMsg.classList.add('ok');
+        saveMsg.textContent = '✅ تم الحفظ. الأجهزة راح تاخذ القيمة الجديدة تلقائياً بأول اتصال إنترنت جاي (قد يستغرق حتى 5 دقائق).';
+      }catch(e){
+        console.error(e);
+        saveMsg.classList.add('err');
+        saveMsg.textContent = 'فشل الحفظ - تأكد من اتصالك بالإنترنت وجرب مرة ثانية';
+      }
+      btn.disabled = false;
+    });
+
+  }catch(e){
+    console.error('Init failed', e);
+    loadingBox.textContent = 'فشل الاتصال بفايربيس - تأكد من وجود إنترنت';
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
