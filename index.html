@@ -1118,7 +1118,7 @@
     <div data-i18n="footerLine1">منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز</div>
     <div class="brand-footer">
       <div class="brand-owner">Designed and Implemented by Creativity Linkers Co.</div>
-      <div class="brand-version">Ver 2.5.2</div>
+      <div class="brand-version">Ver 2.5.3</div>
     </div>
   </footer>
 </div>
@@ -2502,6 +2502,7 @@ async function handleAuthChange(user){
       return;
     }
     currentUserProfile = Object.assign({ email:user.email, displayName:'', allowedViews:[], isAdmin:false }, profile);
+    offlineAuthMode = false;
     // نخزن آخر جلسة دخول ناجحة (بس لو "تذكرني" مفعّلة) حتى لو انقطع النت عن السيرفر
     // بعدين ووصل الجهاز للشبكة المحلية فقط - نقدر نفتحله النظام من هالنسخة المخزنة
     // بدل ما يعلق للأبد بانتظار رد فايربيس (شوف initAuthGate تحت)
@@ -2511,14 +2512,32 @@ async function handleAuthChange(user){
       }catch(e3){}
     }
   }catch(e){
-    console.error('profile fetch failed', e);
-    const err = document.getElementById('loginError');
-    err.textContent = t('loginConnError'); err.style.display='block';
-    try{ await fbSignOutFn(fbAuth); }catch(e2){}
-    return;
+    // مهم جداً: onAuthStateChanged ممكن يرجع مستخدم صحيح من الجلسة المحفوظة حتى بدون
+    // نت (شفنا هذا فعلياً بالتجربة) - لكن جلب بيانات الصلاحيات (users/uid) من قاعدة
+    // بيانات فايربيس طلب شبكة منفصل ويفشل هو نفسه لو ما فيه نت. قبل داشبورد v2.5.3
+    // كان هذا الفشل يسجل خروج المستخدم فوراً ويرجعه لشاشة تعليق - حتى لو كان عنده
+    // جلسة "تذكرني" شغالة والسيرفر المحلي يرد. الحين نتأكد أولاً: نفس المستخدم إله
+    // نسخة محفوظة، والسيرفر المحلي يرد فعلاً على الشبكة - إذا آي نكمل بالنسخة
+    // المحفوظة بدل ما نطرده، وإلا (ما فيه نسخة محفوظة أو ما فيه سيرفر محلي أصلاً)
+    // نسجل خروجه زي القديم لأنه ما نكدر نتأكد من صلاحياته بأي شكل.
+    console.error('[offlineGate] profile fetch failed (Firebase Database)', e);
+    let cached = null;
+    try{ cached = JSON.parse(localStorage.getItem('qamha_cached_auth')||'null'); }catch(e4){}
+    const sameUserCached = cached && cached.uid === user.uid;
+    const localOk = await checkLocalServerHealth();
+    console.log('[offlineGate] profile fetch fallback: نفس المستخدم بالنسخة المحفوظة؟', !!sameUserCached, '| السيرفر المحلي يرد؟', localOk);
+    if(sameUserCached && localOk){
+      currentUserProfile = cached.profile;
+      offlineAuthMode = true;
+    }else{
+      const err = document.getElementById('loginError');
+      err.textContent = t('loginConnError'); err.style.display='block';
+      try{ await fbSignOutFn(fbAuth); }catch(e2){}
+      return;
+    }
   }
   loginScreen.style.display='none'; wrapEl.style.display='';
-  offlineAuthMode = false; updateConnBadgeLabel();
+  updateConnBadgeLabel();
   applyPermissionsToUI();
   if(!dashboardStarted){ dashboardStarted=true; init(); }
 }
