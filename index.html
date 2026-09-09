@@ -1118,7 +1118,7 @@
     <div data-i18n="footerLine1">منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز</div>
     <div class="brand-footer">
       <div class="brand-owner">Designed and Implemented by Creativity Linkers Co.</div>
-      <div class="brand-version">Ver 2.5.0</div>
+      <div class="brand-version">Ver 2.5.1</div>
     </div>
   </footer>
 </div>
@@ -2428,13 +2428,18 @@ async function initAuthGate(){
   // البيانات تلقائياً (بدون إعادة تشغيل init() مرتين - محمي بمتغير dashboardStarted).
   // ---------------------------------------------------------------------
   setTimeout(async () => {
-    if(authGateResolved) return;
+    if(authGateResolved){ console.log('[offlineGate] skip: already resolved'); return; }
     let cached = null;
     try{ cached = JSON.parse(localStorage.getItem('qamha_cached_auth')||'null'); }catch(e){}
-    if(!cached || localStorage.getItem('qamha_remember_me')!=='1') return;
+    const remembered = localStorage.getItem('qamha_remember_me');
+    console.log('[offlineGate] cached auth present?', !!cached, '| remember flag:', remembered);
+    if(!cached || remembered!=='1'){ console.warn('[offlineGate] لا يوجد جلسة محفوظة صالحة - لازم تسجل دخول مرة والنت شغال مع تفعيل "تذكرني" أولاً'); return; }
     const localOk = await checkLocalServerHealth();
-    if(!localOk || authGateResolved) return;
+    console.log('[offlineGate] local server health via', localScheme()+'://'+localServerHost+':'+localPort()+'/health', '=>', localOk);
+    if(!localOk){ console.warn('[offlineGate] السيرفر المحلي ما يرد على هذا العنوان/البورت - تأكد من IP والبورت والشهادة'); return; }
+    if(authGateResolved) return;
     authGateResolved = true;
+    console.log('[offlineGate] فتح النظام بالوضع المحلي (بدون نت) لليوزر:', cached.email);
     currentAuthUser = { uid: cached.uid, email: cached.email };
     currentUserProfile = cached.profile;
     const loginScreen = document.getElementById('loginScreen');
@@ -2453,9 +2458,13 @@ async function initAuthGate(){
     const auth = getAuth(app);
     fbAuth = auth; fbSignInFn = signInWithEmailAndPassword; fbSignOutFn = signOut;
     fbSetPersistenceFn = setPersistence; fbLocalPersistence = browserLocalPersistence; fbSessionPersistence = browserSessionPersistence; fbSendPasswordResetFn = sendPasswordResetEmail;
-    onAuthStateChanged(auth, (user) => { authGateResolved = true; handleAuthChange(user); });
+    console.log('[offlineGate] initAuthGate: تم تحميل فايربيس محلياً بنجاح، بانتظار onAuthStateChanged (مهلة احتياطية 4 ثواني مفعّلة)...');
+    onAuthStateChanged(auth, (user) => {
+      console.log('[offlineGate] onAuthStateChanged رد فعلياً، user =', user ? user.email : null);
+      authGateResolved = true; handleAuthChange(user);
+    });
   }catch(e){
-    console.error('Auth init failed', e);
+    console.error('[offlineGate] Auth init failed (فشل حتى تحميل مكتبة فايربيس المحلية - مشكلة بملفات vendor نفسها)', e);
     const err = document.getElementById('loginError');
     err.textContent = t('loginConnError'); err.style.display='block';
   }
