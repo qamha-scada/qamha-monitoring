@@ -1118,7 +1118,7 @@
     <div data-i18n="footerLine1">منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز</div>
     <div class="brand-footer">
       <div class="brand-owner">Designed and Implemented by Creativity Linkers Co.</div>
-      <div class="brand-version">Ver 2.4.8</div>
+      <div class="brand-version">Ver 2.4.9</div>
     </div>
   </footer>
 </div>
@@ -2415,8 +2415,8 @@ async function initAuthGate(){
     return;
   }
   try{
-    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-    const { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence, sendPasswordResetEmail } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+    const { initializeApp, getApps } = await import("./vendor/firebase/10.12.2/firebase-app.js");
+    const { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence, sendPasswordResetEmail } = await import("./vendor/firebase/10.12.2/firebase-auth.js");
     const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
     const auth = getAuth(app);
     fbAuth = auth; fbSignInFn = signInWithEmailAndPassword; fbSignOutFn = signOut;
@@ -2447,8 +2447,8 @@ async function handleAuthChange(user){
   }
   currentAuthUser = user;
   try{
-    const { getApps } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-    const { getDatabase, ref, get } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
+    const { getApps } = await import("./vendor/firebase/10.12.2/firebase-app.js");
+    const { getDatabase, ref, get } = await import("./vendor/firebase/10.12.2/firebase-database.js");
     const app = getApps()[0];
     const db = getDatabase(app);
     const snap = await get(ref(db, 'users/'+user.uid));
@@ -2663,8 +2663,8 @@ window.adminCreateUser = async function(){
   if(!isAdm && perms.length===0){ errEl.textContent=t('userNoPerms'); errEl.style.display='block'; return; }
   if(!fbSet || !fbRef || !fbDb){ errEl.textContent=t('loginConnError'); errEl.style.display='block'; return; }
   try{
-    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-    const { getAuth, createUserWithEmailAndPassword, signOut } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+    const { initializeApp, getApps } = await import("./vendor/firebase/10.12.2/firebase-app.js");
+    const { getAuth, createUserWithEmailAndPassword, signOut } = await import("./vendor/firebase/10.12.2/firebase-auth.js");
     let secApp = getApps().find(a=>a.name==='Secondary');
     if(!secApp) secApp = initializeApp(firebaseConfig, 'Secondary');
     const secAuth = getAuth(secApp);
@@ -3187,9 +3187,9 @@ window.enableNotifications = async function(){
       return;
     }
     if(!swRegistration && 'serviceWorker' in navigator){ swRegistration = await navigator.serviceWorker.register('sw.js'); }
-    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-    const { getMessaging, getToken } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js");
-    const { getDatabase, ref, set } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
+    const { initializeApp, getApps } = await import("./vendor/firebase/10.12.2/firebase-app.js");
+    const { getMessaging, getToken } = await import("./vendor/firebase/10.12.2/firebase-messaging.js");
+    const { getDatabase, ref, set } = await import("./vendor/firebase/10.12.2/firebase-database.js");
     const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
     const messaging = getMessaging(app);
     const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swRegistration });
@@ -5490,8 +5490,8 @@ function applyPowerLLUpdate(src, pair, val){
 async function tryConnectFirebase(){
   if(firebaseConfig.apiKey === "YOUR_API_KEY"){ setConnBadge(false); console.error('Firebase config missing — set firebaseConfig with real project credentials.'); return; }
   try{
-    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-    const { getDatabase, ref, onValue, set, query, orderByKey, startAt, endAt, get, limitToLast } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
+    const { initializeApp, getApps } = await import("./vendor/firebase/10.12.2/firebase-app.js");
+    const { getDatabase, ref, onValue, set, query, orderByKey, startAt, endAt, get, limitToLast } = await import("./vendor/firebase/10.12.2/firebase-database.js");
     const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
     const db = getDatabase(app);
     fbDb = db; fbRef = ref; fbSet = set; fbQuery = query; fbOrderByKey = orderByKey; fbStartAt = startAt; fbEndAt = endAt; fbGet = get; fbLimitToLast = limitToLast; fbOnValue = onValue;

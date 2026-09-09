@@ -4,8 +4,13 @@
    - يستقبل إشعارات Push حتى إذا المتصفح/التطبيق مسكر (عن طريق Firebase Cloud Messaging)
    ========================================================== */
 
-const CACHE_NAME = 'qamha-scada-v7';
-const CACHE_FILES = ['./index.html', './manifest.json', './icon.svg', './icon-192.png', './icon-512.png'];
+const CACHE_NAME = 'qamha-scada-v8';
+const CACHE_FILES = ['./index.html', './manifest.json', './icon.svg', './icon-192.png', './icon-512.png',
+  // مكتبة فايربيس محلياً (بدل CDN جوجل) - نخزنها فوراً وقت تنصيب الـService Worker
+  // نفسه، حتى تكون جاهزة من أول زيارة أوفلاين بدون انتظار أي طلب لاحق يخزنها
+  './vendor/firebase/10.12.2/firebase-app.js', './vendor/firebase/10.12.2/firebase-auth.js',
+  './vendor/firebase/10.12.2/firebase-database.js', './vendor/firebase/10.12.2/firebase-messaging.js',
+  './vendor/firebase/10.12.2/firebase-app-compat.js', './vendor/firebase/10.12.2/firebase-messaging-compat.js'];
 
 // ملاحظة: ما نستدعي skipWaiting() هنا تلقائياً - نخلي أي نسخة جديدة توصل تبقى
 // "بانتظار" لحد ما المستخدم نفسه يوافق على التحديث من الصفحة (شريط "يتوفر تحديث
@@ -51,8 +56,8 @@ self.addEventListener('fetch', (event) => {
 });
 
 /* ---------- Firebase Cloud Messaging: استقبال إشعارات بالخلفية ---------- */
-importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
+importScripts('./vendor/firebase/10.12.2/firebase-app-compat.js');
+importScripts('./vendor/firebase/10.12.2/firebase-messaging-compat.js');
 
 /* ⚠️ حط هنا نفس بيانات firebaseConfig الموجودة بملف index.html (لازم تكون مطابقة تماماً) */
 firebase.initializeApp({
