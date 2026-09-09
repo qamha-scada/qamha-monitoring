@@ -4,7 +4,7 @@
    - يستقبل إشعارات Push حتى إذا المتصفح/التطبيق مسكر (عن طريق Firebase Cloud Messaging)
    ========================================================== */
 
-const CACHE_NAME = 'qamha-scada-v8';
+const CACHE_NAME = 'qamha-scada-v9';
 const CACHE_FILES = ['./index.html', './manifest.json', './icon.svg', './icon-192.png', './icon-512.png',
   // مكتبة فايربيس محلياً (بدل CDN جوجل) - نخزنها فوراً وقت تنصيب الـService Worker
   // نفسه، حتى تكون جاهزة من أول زيارة أوفلاين بدون انتظار أي طلب لاحق يخزنها

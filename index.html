@@ -1118,7 +1118,7 @@
     <div data-i18n="footerLine1">منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز</div>
     <div class="brand-footer">
       <div class="brand-owner">Designed and Implemented by Creativity Linkers Co.</div>
-      <div class="brand-version">Ver 2.4.9</div>
+      <div class="brand-version">Ver 2.5.0</div>
     </div>
   </footer>
 </div>
@@ -2407,6 +2407,9 @@ let fbSetPersistenceFn = null, fbLocalPersistence = null, fbSessionPersistence =
 let currentAuthUser = null;    // كائن المستخدم من Firebase Auth
 let currentUserProfile = null; // { email, displayName, allowedViews:[], isAdmin, disabled }
 let dashboardStarted = false;  // يمنع استدعاء init() أكثر من مرة
+let offlineAuthMode = false;   // true = دخلنا بجلسة محفوظة محلياً بدون رد فعلي من فايربيس (انقطاع نت)
+
+let authGateResolved = false; // يصير true أول ما يوصل رد حقيقي (أونلاين) أو نفتح بالوضع المحلي الاحتياطي
 
 async function initAuthGate(){
   if(!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY"){
@@ -2414,6 +2417,35 @@ async function initAuthGate(){
     err.textContent = 'Firebase غير مهيأ بإعدادات صحيحة'; err.style.display='block';
     return;
   }
+  // ---------------------------------------------------------------------
+  // مهلة احتياطية: لو انقطع النت عن هذا الجهاز (بس الشبكة المحلية للمعمل شغالة)،
+  // طلب فايربيس للتحقق من الجلسة (identitytoolkit) يفضل معلّق بدون رد - وبدون هذا
+  // الاحتياط الشاشة تبقى عالقة بالرادار للأبد. فبعد 4 ثواني بدون رد فعلي، إذا:
+  //  أولاً: فيه جلسة "تذكرني" محفوظة على هذا الجهاز من قبل، و
+  //  ثانياً: السيرفر المحلي يرد فعلاً على نفس الشبكة
+  // نفتح النظام مباشرة من آخر نسخة محفوظة من الحساب، ونعلّم وضعية "غير متصل".
+  // أول ما يرجع النت، فايربيس نفسه يرسل رد حقيقي عبر onAuthStateChanged ويحدّث
+  // البيانات تلقائياً (بدون إعادة تشغيل init() مرتين - محمي بمتغير dashboardStarted).
+  // ---------------------------------------------------------------------
+  setTimeout(async () => {
+    if(authGateResolved) return;
+    let cached = null;
+    try{ cached = JSON.parse(localStorage.getItem('qamha_cached_auth')||'null'); }catch(e){}
+    if(!cached || localStorage.getItem('qamha_remember_me')!=='1') return;
+    const localOk = await checkLocalServerHealth();
+    if(!localOk || authGateResolved) return;
+    authGateResolved = true;
+    currentAuthUser = { uid: cached.uid, email: cached.email };
+    currentUserProfile = cached.profile;
+    const loginScreen = document.getElementById('loginScreen');
+    const wrapEl = document.querySelector('.wrap');
+    document.getElementById('loginLoading').style.display='none';
+    loginScreen.classList.remove('auth-checking');
+    loginScreen.style.display='none'; wrapEl.style.display='';
+    offlineAuthMode = true; updateConnBadgeLabel();
+    applyPermissionsToUI();
+    if(!dashboardStarted){ dashboardStarted=true; init(); }
+  }, 4000);
   try{
     const { initializeApp, getApps } = await import("./vendor/firebase/10.12.2/firebase-app.js");
     const { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence, sendPasswordResetEmail } = await import("./vendor/firebase/10.12.2/firebase-auth.js");
@@ -2421,7 +2453,7 @@ async function initAuthGate(){
     const auth = getAuth(app);
     fbAuth = auth; fbSignInFn = signInWithEmailAndPassword; fbSignOutFn = signOut;
     fbSetPersistenceFn = setPersistence; fbLocalPersistence = browserLocalPersistence; fbSessionPersistence = browserSessionPersistence; fbSendPasswordResetFn = sendPasswordResetEmail;
-    onAuthStateChanged(auth, handleAuthChange);
+    onAuthStateChanged(auth, (user) => { authGateResolved = true; handleAuthChange(user); });
   }catch(e){
     console.error('Auth init failed', e);
     const err = document.getElementById('loginError');
@@ -2461,6 +2493,14 @@ async function handleAuthChange(user){
       return;
     }
     currentUserProfile = Object.assign({ email:user.email, displayName:'', allowedViews:[], isAdmin:false }, profile);
+    // نخزن آخر جلسة دخول ناجحة (بس لو "تذكرني" مفعّلة) حتى لو انقطع النت عن السيرفر
+    // بعدين ووصل الجهاز للشبكة المحلية فقط - نقدر نفتحله النظام من هالنسخة المخزنة
+    // بدل ما يعلق للأبد بانتظار رد فايربيس (شوف initAuthGate تحت)
+    if(localStorage.getItem('qamha_remember_me')==='1'){
+      try{
+        localStorage.setItem('qamha_cached_auth', JSON.stringify({ uid:user.uid, email:user.email, profile: currentUserProfile, ts: Date.now() }));
+      }catch(e3){}
+    }
   }catch(e){
     console.error('profile fetch failed', e);
     const err = document.getElementById('loginError');
@@ -2469,6 +2509,7 @@ async function handleAuthChange(user){
     return;
   }
   loginScreen.style.display='none'; wrapEl.style.display='';
+  offlineAuthMode = false; updateConnBadgeLabel();
   applyPermissionsToUI();
   if(!dashboardStarted){ dashboardStarted=true; init(); }
 }
@@ -2490,6 +2531,8 @@ window.doLogin = async function(){
     if(fbSetPersistenceFn && fbLocalPersistence && fbSessionPersistence){
       try{ await fbSetPersistenceFn(fbAuth, remember ? fbLocalPersistence : fbSessionPersistence); }catch(e0){ console.warn('setPersistence failed', e0); }
     }
+    if(remember){ try{ localStorage.setItem('qamha_remember_me','1'); }catch(e1){} }
+    else{ try{ localStorage.removeItem('qamha_remember_me'); localStorage.removeItem('qamha_cached_auth'); }catch(e1){} }
     await fbSignInFn(fbAuth, email, pass);
   }catch(e){
     document.getElementById('loginLoading').style.display='none';
@@ -2521,6 +2564,7 @@ window.doForgotPassword = async function(){
 };
 window.doLogout = function(){
   // نعمل تحديث كامل للصفحة بعد الخروج حتى نضمن عدم تراكم اشتراكات فايربيس (onValue) من دورة دخول سابقة
+  try{ localStorage.removeItem('qamha_remember_me'); localStorage.removeItem('qamha_cached_auth'); }catch(e1){}
   if(fbSignOutFn && fbAuth){ fbSignOutFn(fbAuth).finally(()=> location.reload()); }
   else{ location.reload(); }
 };
@@ -5577,8 +5621,13 @@ function setConnBadge(online){
 // لحالة فايربيس العادية - هذا يخلي المستخدم يعرف لحظياً وين مصدر القراءات
 function updateConnBadgeLabel(){
   const badge=document.getElementById('connBadge'), text=document.getElementById('connText');
+  if(!badge || !text) return;
   const online = localServerLastOk || firebaseOnlineState;
   badge.classList.toggle('offline', !online);
+  if(offlineAuthMode && !firebaseOnlineState){
+    text.textContent = localServerLastOk ? 'Live (LAN) - دخول محلي بدون نت' : 'دخول محلي بدون نت';
+    return;
+  }
   text.textContent = localServerLastOk ? 'Live (LAN)' : (firebaseOnlineState ? 'Live' : 'Offline');
 }
 
