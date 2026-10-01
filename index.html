@@ -1152,7 +1152,7 @@
     <div data-i18n="footerLine1">منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز</div>
     <div class="brand-footer">
       <div class="brand-owner">Designed and Implemented by Creativity Linkers Co.</div>
-      <div class="brand-version">Ver 2.5.9</div>
+      <div class="brand-version">Ver 2.5.10</div>
     </div>
   </footer>
 </div>
@@ -3260,12 +3260,14 @@ let devicesData = {};
 let localDevicesData = {};
 let currentDeviceDetailId = null;
 const DEVICE_ONLINE_THRESHOLD_MS = 90 * 1000; // أكبر شوي من فترة النبضة بالفيرموير (60 ثانية)
-// رابط موقعك الفعلي على Netlify (بدون / بالنهاية) - يُستخدم بس وقت فتح الداشبورد من نسخة
-// السيرفر المحلي (لأن دالة Netlify مو موجودة على عنوان السيرفر المحلي نفسه). لو تفتح
-// الداشبورد عادةً من رابط Netlify مباشرة، ما تحتاج تغيّر شي - يستخدم location.origin تلقائياً
-const NETLIFY_SITE_ORIGIN = 'https://qamha-scada.netlify.app'; // TODO: غيّرها لرابط موقعك الحقيقي على Netlify لو مختلف
+// رابط الموقع الفعلي على Netlify (بدون / بالنهاية) - هنا تحديداً دالة رفع الفيرموير
+// (upload-firmware.js) شغالة وموجودة فعلاً، لأنها Netlify Function حقيقية سيرفر-سايد.
+// الداشبورد نفسه ينفتح عادةً من GitHub Pages (qamha-scada.github.io) أو من السيرفر
+// المحلي - وكلاهما ما يقدر يشغّل Netlify Functions على عنوانه هو، فلازم نستدعي
+// الدالة دايماً من عنوان Netlify مباشرة (إلا لو كنت أصلاً مفتوح من عنوان Netlify نفسه)
+const NETLIFY_SITE_ORIGIN = 'https://gleeful-palmier-666b68.netlify.app';
 function uploadFirmwareEndpoint(){
-  const base = (typeof VIEWING_FROM_LOCAL_SERVER !== 'undefined' && VIEWING_FROM_LOCAL_SERVER) ? NETLIFY_SITE_ORIGIN : location.origin;
+  const base = (location.origin.indexOf('netlify.app') !== -1) ? location.origin : NETLIFY_SITE_ORIGIN;
   return base + '/.netlify/functions/upload-firmware';
 }
 
