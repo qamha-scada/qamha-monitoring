@@ -487,6 +487,17 @@
   .user-row-head{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
   .user-row-name{ font-weight:800; font-size:13px; }
   .user-row-email{ font-size:11px; color:var(--text-2); }
+  .device-row{ padding:12px; border:1px solid var(--card-border); border-radius:10px; margin-bottom:10px; background:rgba(255,255,255,0.02); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; cursor:pointer; transition:.15s; }
+  .device-row:hover{ background:rgba(255,255,255,0.05); border-color:var(--accent); }
+  .device-row-name{ font-weight:800; font-size:13px; color:var(--text-0); }
+  .device-row-sub{ font-size:11px; color:var(--text-2); margin-top:2px; }
+  .device-status-badge{ padding:5px 12px; border-radius:999px; font-size:11px; font-weight:800; border:1px solid; white-space:nowrap; }
+  .device-status-badge.wan{ color:var(--ok); border-color:rgba(46,230,166,.4); background:rgba(46,230,166,.1); }
+  .device-status-badge.lan{ color:var(--warn); border-color:rgba(255,176,32,.4); background:rgba(255,176,32,.1); }
+  .device-status-badge.offline{ color:var(--text-2); border-color:var(--card-border); background:rgba(255,255,255,.03); }
+  .device-detail-row{ display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid var(--card-border); }
+  .device-detail-row .k{ color:var(--text-2); }
+  .device-detail-row .v{ color:var(--text-0); font-weight:700; text-align:end; }
   .user-perms-checks{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:8px; }
   .user-perms-checks label{ font-size:11px; color:var(--text-1); display:flex; align-items:center; gap:5px; background:rgba(255,255,255,.03); border:1px solid var(--card-border); border-radius:8px; padding:5px 9px; cursor:pointer; }
   .admin-toggle-row{ font-size:11px; color:var(--text-1); display:flex; align-items:center; gap:6px; margin-bottom:8px; }
@@ -671,7 +682,7 @@
   body.fs-mode .gauge-unit{ font-size:7px; margin-top:1px; }
   body.fs-mode .gauge-label{ font-size:8px; margin-top:1px; letter-spacing:0; line-height:1.25; }
   body.fs-mode .readings{ gap:6px; margin:6px 0 0; flex:0 0 auto; }
-  body.fs-mode .read-item{ padding:4px 6px; }
+  body.fs-mode .read-item{padding:4px 6px; }
   body.fs-mode .read-item .rl{ font-size:8px; margin-bottom:1px; }
   body.fs-mode .read-item .rv{ font-size:10px; }
   body.fs-mode .station-foot{ padding-top:4px; margin-top:4px; font-size:8px; flex:0 0 auto; }
@@ -907,6 +918,19 @@
           <a class="admin-card-btn primary" href="server-config.html" target="_blank" rel="noopener"><span data-i18n="adminCardOpenLocalServer">🖥️ فتح إعدادات السيرفر المحلي</span> <span class="arrow">←</span></a>
         </div>
       </div>
+
+      <div class="admin-card">
+        <div class="admin-card-head">
+          <span class="admin-card-icon">📡</span>
+          <div>
+            <div class="admin-card-title" data-i18n="adminCardDevicesTitle">الأجهزة (ESP32) وتحديث الفيرموير</div>
+          </div>
+        </div>
+        <div class="admin-card-desc" data-i18n="adminCardDevicesDesc">قائمة بكل كارتات ESP32 المربوطة بالمشروع، حالة اتصال كل واحد (إنترنت / شبكة محلية / غير متصل)، ورفع فيرموير جديد مباشرة لأي جهاز عن بعد.</div>
+        <div class="admin-card-actions">
+          <button class="admin-card-btn primary" onclick="openDevicesAdmin()"><span data-i18n="adminCardOpenDevices">📡 فتح إدارة الأجهزة</span> <span class="arrow">←</span></button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1118,7 +1142,7 @@
     <div data-i18n="footerLine1">منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز</div>
     <div class="brand-footer">
       <div class="brand-owner">Designed and Implemented by Creativity Linkers Co.</div>
-      <div class="brand-version">Ver 2.5.4</div>
+      <div class="brand-version">Ver 2.5.5</div>
     </div>
   </footer>
 </div>
@@ -1222,6 +1246,41 @@
       </div>
       <div id="newUserError" style="color:var(--danger);font-size:11px;margin-bottom:10px;display:none;"></div>
       <button class="export-btn" style="width:100%;" onclick="adminCreateUser()" data-i18n="userCreateBtn">➕ إنشاء المستخدم</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Devices Admin Modal (قائمة أجهزة ESP32) ===== -->
+<div class="modal-overlay" id="devicesAdminModal">
+  <div class="modal-box" style="max-width:760px;">
+    <div class="modal-head"><h3 data-i18n="devicesAdminTitle">📡 إدارة الأجهزة (ESP32)</h3><button class="modal-close" onclick="closeDevicesAdmin()">✕</button></div>
+    <div style="font-size:11px;color:var(--text-2);margin:-8px 0 12px;" data-i18n="devicesAdminIntro">اضغط على أي جهاز لعرض تفاصيله ورفع فيرموير جديد له. التحديث يوصل للجهاز خلال ثواني قليلة لو كان متصل بالإنترنت.</div>
+    <div id="devicesListWrap"><div class="users-empty" data-i18n="devicesLoading">جارٍ التحميل...</div></div>
+  </div>
+</div>
+
+<!-- ===== Device Detail Modal (تفاصيل جهاز + رفع فيرموير) ===== -->
+<div class="modal-overlay" id="deviceDetailModal">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-head">
+      <h3 id="deviceDetailTitle">📟 --</h3>
+      <button class="modal-close" onclick="closeDeviceDetail()">✕</button>
+    </div>
+    <button class="ctrl-btn" style="margin-bottom:12px;" onclick="backToDevicesList()">→ <span data-i18n="devicesBackToList">رجوع لقائمة الأجهزة</span></button>
+    <div id="deviceDetailInfo" style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text-1);margin-bottom:16px;"></div>
+    <div style="border-top:1px solid var(--card-border);padding-top:14px;">
+      <div style="font-weight:800;margin-bottom:10px;" data-i18n="deviceUploadTitle">⬆️ رفع فيرموير جديد لهذا الجهاز</div>
+      <div style="font-size:11px;color:var(--text-2);margin-bottom:10px;" data-i18n="deviceUploadNote">اختر ملف .bin المصدَّر من Arduino IDE (Sketch → Export Compiled Binary)، وحدد رقم النسخة الجديد. الجهاز لازم يكون متصل بالإنترنت (WAN) حتى يستلم التحديث فوراً.</div>
+      <label style="font-size:11px;color:var(--text-1);display:block;margin-bottom:10px;">
+        <span data-i18n="deviceVersionLabel">رقم النسخة الجديد (مثال: 1.0.20)</span>
+        <input type="text" id="deviceUploadVersion" style="width:100%;margin-top:4px;background:rgba(255,255,255,.05);border:1px solid var(--card-border);color:var(--text-0);border-radius:6px;padding:8px;box-sizing:border-box;">
+      </label>
+      <label style="font-size:11px;color:var(--text-1);display:block;margin-bottom:12px;">
+        <span data-i18n="deviceFileLabel">ملف الفيرموير (.bin)</span>
+        <input type="file" id="deviceUploadFile" accept=".bin" style="width:100%;margin-top:4px;background:rgba(255,255,255,.05);border:1px solid var(--card-border);color:var(--text-0);border-radius:6px;padding:8px;box-sizing:border-box;">
+      </label>
+      <div id="deviceUploadStatus" style="font-size:12px;margin-bottom:10px;display:none;"></div>
+      <button class="export-btn" style="width:100%;" id="deviceUploadBtn" onclick="uploadDeviceFirmware()" data-i18n="deviceUploadBtn">⬆️ رفع وتحديث الجهاز الآن</button>
     </div>
   </div>
 </div>
@@ -1486,7 +1545,7 @@ const FIRE_ZONE_COUNT = 8, GAS_ZONE_COUNT = 8, MOTION_ZONE_COUNT = 8, MAX_SENSOR
 let state = {};
 let currentLang = localStorage.getItem('qamha_lang') || 'ar';
 let currentLogWarehouse = null;
-let lastGlobalUpdate = null;
+let lastGlobalUpdate= null;
 const logs = {}; WAREHOUSES.forEach(w=>logs[w.id]=[]);
 const trendMem = {};
 const humTrendMem = {};
@@ -1606,7 +1665,27 @@ const I18N = {
     gasTitle:'منظومة مراقبة تسرب الغاز', gasMasterOk:'✅ لا يوجد تسرب', gasMasterAlarm:'🚨 تسرب غاز!', gasMasterFault:'⚠ يوجد عطل', gasMasterOffline:'⛔ لا توجد أجهزة متصلة',
     gasStatusSafe:'آمن', gasStatusWarning:'تحذير', gasStatusDanger:'خطر تسرب', gasStatusFault:'عطل', gasStatusOffline:'⛔ غير متصل',
     footerLine1:'منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز',
-    optDark:'🌙 داكن', optLight:'☀️ فاتح', warehouseWord:'مخزن' },
+    optDark:'🌙 داكن', optLight:'☀️ فاتح', warehouseWord:'مخزن',
+    adminCardDevicesTitle:'الأجهزة (ESP32) وتحديث الفيرموير',
+    adminCardDevicesDesc:'قائمة بكل كارتات ESP32 المربوطة بالمشروع، حالة اتصال كل واحد (إنترنت / شبكة محلية / غير متصل)، ورفع فيرموير جديد مباشرة لأي جهاز عن بعد.',
+    adminCardOpenDevices:'📡 فتح إدارة الأجهزة',
+    devicesAdminTitle:'📡 إدارة الأجهزة (ESP32)',
+    devicesAdminIntro:'اضغط على أي جهاز لعرض تفاصيله ورفع فيرموير جديد له. التحديث يوصل للجهاز خلال ثواني قليلة لو كان متصل بالإنترنت.',
+    devicesLoading:'جارٍ التحميل...', devicesEmpty:'لا توجد أجهزة مسجّلة بعد — راح تظهر هنا تلقائياً أول ما يشتغل أي جهاز ويرسل أول نبضة له.',
+    devicesBackToList:'رجوع لقائمة الأجهزة',
+    deviceStatusWan:'🟢 WAN — متصل بالإنترنت', deviceStatusLan:'🟡 LAN — شبكة محلية فقط', deviceStatusOffline:'⚫ غير متصل',
+    deviceIdLabel:'معرّف الجهاز', deviceStatusLabel:'حالة الاتصال', deviceLocationLabel:'مكان التنصيب',
+    deviceBoardLabel:'موديل الكارت', deviceFwLabel:'نسخة الفيرموير', deviceLocalIpLabel:'عنوان IP المحلي',
+    deviceRssiLabel:'قوة الإشارة', deviceLastSeenLabel:'آخر ظهور',
+    deviceUploadTitle:'⬆️ رفع فيرموير جديد لهذا الجهاز',
+    deviceUploadNote:'اختر ملف .bin المصدَّر من Arduino IDE (Sketch → Export Compiled Binary)، وحدد رقم النسخة الجديد. الجهاز لازم يكون متصل بالإنترنت (WAN) حتى يستلم التحديث فوراً.',
+    deviceVersionLabel:'رقم النسخة الجديد (مثال: 1.0.20)', deviceFileLabel:'ملف الفيرموير (.bin)',
+    deviceUploadBtn:'⬆️ رفع وتحديث الجهاز الآن',
+    deviceUploadInProgress:'⏳ جارِ الرفع... قد يستغرق دقيقة حسب حجم الملف وسرعة النت',
+    deviceUploadSuccess:'✅ تم الرفع بنجاح — الجهاز راح يطبّق التحديث خلال ثواني قليلة لو كان متصل',
+    deviceUploadFailed:'❌ فشل الرفع', deviceUploadErrNoVersion:'الرجاء إدخال رقم النسخة الجديد',
+    deviceUploadErrNoFile:'الرجاء اختيار ملف الفيرموير (.bin)', deviceUploadErrBadExt:'الملف لازم يكون بصيغة .bin',
+    deviceUploadErrAuth:'تعذر التحقق من هويتك — سجّل الدخول من جديد وحاول مرة أخرى' },
   en:{ title:'Qamha Scada System', navOverview:'🏭 Overview', navWarehouses:'🌡️ Warehouse Temps', navFire:'🔥 Fire Alarm', navGas:'🛢️ Gas Leak',
     labelActive:'Active Systems', labelLastUpdate:'Last Update', labelAlerts:'Active Alerts (click for details)',
     secWarehousesTitle:'Warehouse Temp & Humidity Monitoring',
@@ -1716,7 +1795,27 @@ const I18N = {
     gasTitle:'Gas Leak Monitoring System', gasMasterOk:'✅ No Leak Detected', gasMasterAlarm:'🚨 Gas Leak!', gasMasterFault:'⚠ Fault Present', gasMasterOffline:'⛔ No Devices Connected',
     gasStatusSafe:'Safe', gasStatusWarning:'Warning', gasStatusDanger:'Danger', gasStatusFault:'Fault', gasStatusOffline:'⛔ Offline',
     footerLine1:'Internal platform for monitoring warehouses, fire and gas systems',
-    optDark:'🌙 Dark', optLight:'☀️ Light', warehouseWord:'Warehouse' }
+    optDark:'🌙 Dark', optLight:'☀️ Light', warehouseWord:'Warehouse',
+    adminCardDevicesTitle:'Devices (ESP32) & Firmware Updates',
+    adminCardDevicesDesc:'A list of every ESP32 board connected to the project, each one\'s connection status (internet / local network / offline), and the ability to upload new firmware directly to any device remotely.',
+    adminCardOpenDevices:'📡 Open Device Management',
+    devicesAdminTitle:'📡 Device Management (ESP32)',
+    devicesAdminIntro:'Click any device to view its details and upload new firmware to it. The update reaches the device within a few seconds if it\'s connected to the internet.',
+    devicesLoading:'Loading...', devicesEmpty:'No devices registered yet — they will appear here automatically as soon as any device starts up and sends its first heartbeat.',
+    devicesBackToList:'Back to devices list',
+    deviceStatusWan:'🟢 WAN — Connected to internet', deviceStatusLan:'🟡 LAN — Local network only', deviceStatusOffline:'⚫ Offline',
+    deviceIdLabel:'Device ID', deviceStatusLabel:'Connection status', deviceLocationLabel:'Installation location',
+    deviceBoardLabel:'Board model', deviceFwLabel:'Firmware version', deviceLocalIpLabel:'Local IP address',
+    deviceRssiLabel:'Signal strength', deviceLastSeenLabel:'Last seen',
+    deviceUploadTitle:'⬆️ Upload new firmware to this device',
+    deviceUploadNote:'Choose a .bin file exported from Arduino IDE (Sketch → Export Compiled Binary), and set the new version number. The device must be connected to the internet (WAN) to receive the update immediately.',
+    deviceVersionLabel:'New version number (e.g. 1.0.20)', deviceFileLabel:'Firmware file (.bin)',
+    deviceUploadBtn:'⬆️ Upload and update device now',
+    deviceUploadInProgress:'⏳ Uploading... may take a minute depending on file size and internet speed',
+    deviceUploadSuccess:'✅ Upload successful — the device will apply the update within a few seconds if connected',
+    deviceUploadFailed:'❌ Upload failed', deviceUploadErrNoVersion:'Please enter the new version number',
+    deviceUploadErrNoFile:'Please select the firmware file (.bin)', deviceUploadErrBadExt:'The file must have a .bin extension',
+    deviceUploadErrAuth:'Could not verify your identity — please sign in again and retry' }
 };
 function t(k){ return (I18N[currentLang] && I18N[currentLang][k]) || k; }
 function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
@@ -3137,6 +3236,184 @@ window.setTheme = function(theme){
   localStorage.setItem('qamha_theme', theme);
 };
 
+/* ---------- إدارة الأجهزة (ESP32) - قائمة، تفاصيل، رفع فيرموير عن بعد ---------- */
+// devicesData: آخر نسخة وصلت من فايربيس السحابة (/devices) - نبضة كل جهاز توصل هنا لو الجهاز
+// متصل بالإنترنت (WAN). localDevicesData: آخر نسخة وصلت من السيرفر المحلي (لو مفعّل بالفيرموير
+// وقابل للوصول من نفس شبكة المتصفح حالياً) - جهاز يوصل بس محلياً (LAN) يظهر هنا وما يظهر بالسحابة
+let devicesData = {};
+let localDevicesData = {};
+let currentDeviceDetailId = null;
+const DEVICE_ONLINE_THRESHOLD_MS = 90 * 1000; // أكبر شوي من فترة النبضة بالفيرموير (60 ثانية)
+// رابط موقعك الفعلي على Netlify (بدون / بالنهاية) - يُستخدم بس وقت فتح الداشبورد من نسخة
+// السيرفر المحلي (لأن دالة Netlify مو موجودة على عنوان السيرفر المحلي نفسه). لو تفتح
+// الداشبورد عادةً من رابط Netlify مباشرة، ما تحتاج تغيّر شي - يستخدم location.origin تلقائياً
+const NETLIFY_SITE_ORIGIN = 'https://qamha-scada.netlify.app'; // TODO: غيّرها لرابط موقعك الحقيقي على Netlify لو مختلف
+function uploadFirmwareEndpoint(){
+  const base = (typeof VIEWING_FROM_LOCAL_SERVER !== 'undefined' && VIEWING_FROM_LOCAL_SERVER) ? NETLIFY_SITE_ORIGIN : location.origin;
+  return base + '/.netlify/functions/upload-firmware';
+}
+
+function deviceIdsUnion(){
+  const ids = new Set([...Object.keys(devicesData||{}), ...Object.keys(localDevicesData||{})]);
+  return Array.from(ids);
+}
+function computeDeviceStatus(deviceId){
+  const now = Date.now();
+  const cloud = (devicesData||{})[deviceId];
+  const local = (localDevicesData||{})[deviceId];
+  const cloudFresh = !!(cloud && cloud.lastSeen && (now - Number(cloud.lastSeen)) < DEVICE_ONLINE_THRESHOLD_MS);
+  const localFresh = !!(local && local.lastSeen && (now - Number(local.lastSeen)) < DEVICE_ONLINE_THRESHOLD_MS);
+  if(cloudFresh) return 'wan';
+  if(localFresh) return 'lan';
+  return 'offline';
+}
+function getDeviceMerged(deviceId){
+  const cloud = (devicesData||{})[deviceId];
+  const local = (localDevicesData||{})[deviceId];
+  if(!cloud) return local || null;
+  if(!local) return cloud;
+  return (Number(local.lastSeen||0) > Number(cloud.lastSeen||0)) ? local : cloud;
+}
+function deviceStatusLabel(status){
+  if(status==='wan') return t('deviceStatusWan');
+  if(status==='lan') return t('deviceStatusLan');
+  return t('deviceStatusOffline');
+}
+
+window.openDevicesAdmin = function(){
+  if(!(currentUserProfile && currentUserProfile.isAdmin)) return;
+  document.getElementById('devicesAdminModal').classList.add('show');
+  renderDevicesList();
+};
+window.closeDevicesAdmin = function(){ document.getElementById('devicesAdminModal').classList.remove('show'); };
+
+function renderDevicesList(){
+  const wrap = document.getElementById('devicesListWrap');
+  if(!wrap || !document.getElementById('devicesAdminModal').classList.contains('show')) return;
+  const ids = deviceIdsUnion();
+  if(!ids.length){ wrap.innerHTML = `<div class="users-empty">${t('devicesEmpty')}</div>`; return; }
+  ids.sort();
+  wrap.innerHTML = ids.map(id=>{
+    const d = getDeviceMerged(id) || {};
+    const status = computeDeviceStatus(id);
+    const name = String(d.locationName || id).replace(/</g,'&lt;');
+    const fw = String(d.firmwareVersion || '--').replace(/</g,'&lt;');
+    return `<div class="device-row" data-device-id="${id}" onclick="openDeviceDetail('${id}')">
+      <div>
+        <div class="device-row-name">📟 ${name}</div>
+        <div class="device-row-sub">${id} · ${t('deviceFwLabel')}: ${fw}</div>
+      </div>
+      <span class="device-status-badge ${status}">${deviceStatusLabel(status)}</span>
+    </div>`;
+  }).join('');
+}
+
+window.openDeviceDetail = function(deviceId){
+  currentDeviceDetailId = deviceId;
+  document.getElementById('devicesAdminModal').classList.remove('show');
+  document.getElementById('deviceDetailModal').classList.add('show');
+  document.getElementById('deviceUploadVersion').value = '';
+  document.getElementById('deviceUploadFile').value = '';
+  const statusEl = document.getElementById('deviceUploadStatus');
+  statusEl.style.display = 'none'; statusEl.textContent = '';
+  renderDeviceDetail(deviceId);
+};
+window.closeDeviceDetail = function(){
+  document.getElementById('deviceDetailModal').classList.remove('show');
+  currentDeviceDetailId = null;
+};
+window.backToDevicesList = function(){
+  document.getElementById('deviceDetailModal').classList.remove('show');
+  currentDeviceDetailId = null;
+  window.openDevicesAdmin();
+};
+
+function renderDeviceDetail(deviceId){
+  if(currentDeviceDetailId !== deviceId) return;
+  const d = getDeviceMerged(deviceId) || {};
+  const status = computeDeviceStatus(deviceId);
+  document.getElementById('deviceDetailTitle').textContent = '📟 ' + (d.locationName || deviceId);
+  const lastSeenTxt = d.lastSeen ? new Date(Number(d.lastSeen)).toLocaleString(currentLang==='ar'?'ar-EG':'en-GB') : '--';
+  const rows = [
+    [t('deviceIdLabel'), deviceId],
+    [t('deviceStatusLabel'), `<span class="device-status-badge ${status}" style="font-size:10px;">${deviceStatusLabel(status)}</span>`],
+    [t('deviceLocationLabel'), d.locationName || '--'],
+    [t('deviceBoardLabel'), d.boardModel || '--'],
+    [t('deviceFwLabel'), d.firmwareVersion || '--'],
+    [t('deviceLocalIpLabel'), d.localIp || '--'],
+    [t('deviceRssiLabel'), (d.rssi!==undefined && d.rssi!==null) ? (d.rssi+' dBm') : '--'],
+    [t('deviceLastSeenLabel'), lastSeenTxt],
+  ];
+  document.getElementById('deviceDetailInfo').innerHTML = rows.map(([k,v])=>
+    `<div class="device-detail-row"><span class="k">${k}</span><span class="v">${v}</span></div>`
+  ).join('');
+}
+
+// ============================================================
+// رفع فيرموير جديد للجهاز المفتوح حالياً: نقرأ ملف .bin كـ base64، نجيب توكن دخول
+// الأدمن الحالي من فايربيس، ونستدعي دالة Netlify (upload-firmware.js) - هذاك اللي يرفع
+// فعلياً لـGitHub ويكتب علم "تحديث مطلوب" بفايربيس. المفتاح الحساس (GITHUB_TOKEN) يضل
+// بس بإعدادات Netlify سيرفر-سايد - ما يتخزن ولا يمر أبداً عبر متصفح الأدمن
+// ============================================================
+function fileToBase64(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const result = reader.result; // "data:application/octet-stream;base64,AAAA..."
+      const idx = result.indexOf(',');
+      resolve(idx>=0 ? result.slice(idx+1) : result);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+window.uploadDeviceFirmware = async function(){
+  if(!currentDeviceDetailId) return;
+  const statusEl = document.getElementById('deviceUploadStatus');
+  const btn = document.getElementById('deviceUploadBtn');
+  const version = document.getElementById('deviceUploadVersion').value.trim();
+  const fileInput = document.getElementById('deviceUploadFile');
+  const file = fileInput.files && fileInput.files[0];
+
+  statusEl.style.display = 'block';
+  if(!version){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceUploadErrNoVersion'); return; }
+  if(!file){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceUploadErrNoFile'); return; }
+  if(!file.name.toLowerCase().endsWith('.bin')){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceUploadErrBadExt'); return; }
+  if(!currentAuthUser){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceUploadErrAuth'); return; }
+
+  btn.disabled = true;
+  statusEl.style.color = 'var(--text-1)';
+  statusEl.textContent = t('deviceUploadInProgress');
+  try{
+    const [binBase64, idToken] = await Promise.all([ fileToBase64(file), currentAuthUser.getIdToken() ]);
+    const res = await fetch(uploadFirmwareEndpoint(), {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+idToken },
+      body: JSON.stringify({ deviceId: currentDeviceDetailId, version, binBase64 })
+    });
+    const data = await res.json().catch(()=>({}));
+    if(res.ok && data.ok){
+      statusEl.style.color = 'var(--ok)';
+      statusEl.textContent = t('deviceUploadSuccess');
+      document.getElementById('deviceUploadFile').value = '';
+    } else {
+      statusEl.style.color = 'var(--danger)';
+      statusEl.textContent = t('deviceUploadFailed') + (data.error ? (' — '+data.error) : '');
+    }
+  }catch(e){
+    console.error('uploadDeviceFirmware failed', e);
+    statusEl.style.color = 'var(--danger)';
+    statusEl.textContent = t('deviceUploadFailed');
+  }finally{
+    btn.disabled = false;
+  }
+};
+
+// تحديث دوري لحالة WAN/LAN/Offline حتى لو ما وصلت نبضة جديدة (الحالة نفسها تعتمد على
+// فرق الوقت الحالي عن آخر نبضة، فلازم تتحدث بانتظام حتى تنتقل لـ"غير متصل" أوتوماتيكياً)
+setInterval(()=>{ renderDevicesList(); if(currentDeviceDetailId) renderDeviceDetail(currentDeviceDetailId); }, 15000);
+
 /* ---------- Info Modal (تثبيت التطبيق / الإشعارات) ---------- */
 function showInfoModal(title, body){
   document.getElementById('infoModalTitle').textContent = title;
@@ -4184,7 +4461,7 @@ function renderFireSystemsList(){
         </div>
         <div style="display:flex;gap:6px;">
           <button class="log-btn" onclick="startEditFireSystem('${sys.id}')">✏️ ${t('fireSysEdit')}</button>
-          <button class="log-btn" onclick="deleteFireSystem('${sys.id}')" ${fireSystems.length<=1?'disabled':''}>🗑️</button>
+    <button class="log-btn" onclick="deleteFireSystem('${sys.id}')" ${fireSystems.length<=1?'disabled':''}>🗑️</button>
         </div>
       </div>`;
     }
@@ -5478,6 +5755,11 @@ async function pollLocalOnce(){
     const val = await fetchLocalPath('powerReadings/'+src.id+'/LL/'+pair.id);
     if(val !== undefined) applyPowerLLUpdate(src, pair, val);
   })));
+
+  // نبضة أجهزة الـESP32 الي توصل للسيرفر المحلي (لو مفعّلة بالفيرموير) - هذا اللي
+  // يخلي واجهة "الأجهزة" تقدر تبين حالة LAN لجهاز وصل محلياً بس بدون إنترنت
+  const devVal = await fetchLocalPath('devices');
+  if(devVal){ localDevicesData = devVal; renderDevicesList(); if(currentDeviceDetailId) renderDeviceDetail(currentDeviceDetailId); }
 }
 
 function startLocalPolling(){
@@ -5625,6 +5907,9 @@ async function tryConnectFirebase(){
     POWER_SOURCES.forEach(src=> POWER_LL_PAIRS.forEach(pair=>{
       onValue(ref(db, 'powerReadings/'+src.id+'/LL/'+pair.id), (snap)=> applyPowerLLUpdate(src, pair, snap.val()));
     }));
+    // بيانات واجهة "الأجهزة" - نبضة كل جهاز (اسم الموقع، موديل الكارت، نسخة الفيرموير،
+    // آخر ظهور...) توصل هنا مباشرة لو الجهاز متصل بالإنترنت (WAN)
+    onValue(ref(db, 'devices'), (snap)=>{ devicesData = snap.val() || {}; renderDevicesList(); if(currentDeviceDetailId) renderDeviceDetail(currentDeviceDetailId); });
     onValue(ref(db, 'powerThresholdsConfig'), (snap)=>{
       const val = snap.val();
       if(val){ powerThresholds = Object.assign(powerThresholds, val); savePowerThresholdsLocal(); renderPowerAll(); }
