@@ -1145,7 +1145,7 @@
     <div data-i18n="footerLine1">منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز</div>
     <div class="brand-footer">
       <div class="brand-owner">Designed and Implemented by Creativity Linkers Co.</div>
-      <div class="brand-version">Ver 2.5.6</div>
+      <div class="brand-version">Ver 2.5.7</div>
     </div>
   </footer>
 </div>
@@ -3260,6 +3260,29 @@ function uploadFirmwareEndpoint(){
   return base + '/.netlify/functions/upload-firmware';
 }
 
+// ============================================================
+// أسماء وصفية كاملة لكل جهاز (تجمع بين نوع المنظومة ومكان التنصيب الفعلي) - هذا اللي
+// يخلي كل جهاز بقائمة "الأجهزة" يبين باسم واضح مثل "منظومة الحرارة للمخزن المجمد" بدل
+// بس "warehouse_1" أو الاسم المختصر الي يرسله الفيرموير. لو انضاف جهاز جديد مو موجود
+// بهذا الجدول (منظومة حريق ثالثة مثلاً، أو مبنى الإدارة بعد ما تنصب)، يكفي تضيف سطر
+// واحد هنا بمعرّف الجهاز (deviceId) واسمه بالعربي والإنكليزي
+const DEVICE_FRIENDLY_NAMES = {
+  warehouse_1: { ar:'منظومة الحرارة للمخزن المجمد',          en:'Temperature System – Frozen Warehouse' },
+  warehouse_2: { ar:'منظومة الحرارة للمخزن المبرد 1',         en:'Temperature System – Refrigerated Warehouse 1' },
+  warehouse_3: { ar:'منظومة الحرارة للمخزن المبرد 2',         en:'Temperature System – Refrigerated Warehouse 2' },
+  warehouse_4: { ar:'منظومة الحرارة لمخزن المواد الأولية 1',  en:'Temperature System – Raw Materials Warehouse 1' },
+  warehouse_5: { ar:'منظومة الحرارة لمخزن المواد الأولية 2',  en:'Temperature System – Raw Materials Warehouse 2' },
+  warehouse_6: { ar:'منظومة الحرارة لمخزن الطحين',            en:'Temperature System – Flour Warehouse' },
+  warehouse_7: { ar:'منظومة الحرارة لمنطقة الكهرباء',         en:'Temperature System – Electrical Panel Zone' },
+  fire_system_1: { ar:'منظومة إنذار الحريق في معمل المعجنات',    en:'Fire Alarm System – Pastry Factory' },
+  fire_system_2: { ar:'منظومة إنذار الحريق في مبنى الإدارة',     en:'Fire Alarm System – Administration Building' },
+};
+function deviceFriendlyName(deviceId, fallbackLocationName){
+  const entry = DEVICE_FRIENDLY_NAMES[deviceId];
+  if(entry) return (currentLang==='ar') ? entry.ar : entry.en;
+  return fallbackLocationName || deviceId;
+}
+
 function deviceIdsUnion(){
   const ids = new Set([...Object.keys(devicesData||{}), ...Object.keys(localDevicesData||{})]);
   return Array.from(ids);
@@ -3342,7 +3365,7 @@ function renderDevicesList(){
     const rows = catIds.map(id=>{
       const d = getDeviceMerged(id) || {};
       const status = computeDeviceStatus(id);
-      const name = String(d.locationName || id).replace(/</g,'&lt;');
+      const name = String(deviceFriendlyName(id, d.locationName)).replace(/</g,'&lt;');
       const fw = String(d.firmwareVersion || '--').replace(/</g,'&lt;');
       return `<div class="device-row" data-device-id="${id}" onclick="openDeviceDetail('${id}')">
         <div>
@@ -3383,7 +3406,7 @@ function renderDeviceDetail(deviceId){
   if(currentDeviceDetailId !== deviceId) return;
   const d = getDeviceMerged(deviceId) || {};
   const status = computeDeviceStatus(deviceId);
-  document.getElementById('deviceDetailTitle').textContent = '📟 ' + (d.locationName || deviceId);
+  document.getElementById('deviceDetailTitle').textContent = '📟 ' + deviceFriendlyName(deviceId, d.locationName);
   const lastSeenTxt = d.lastSeen ? new Date(Number(d.lastSeen)).toLocaleString(currentLang==='ar'?'ar-EG':'en-GB') : '--';
   const rows = [
     [t('deviceIdLabel'), deviceId],
