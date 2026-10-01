@@ -498,6 +498,8 @@
   .device-status-badge.wan{ color:var(--ok); border-color:rgba(46,230,166,.4); background:rgba(46,230,166,.1); }
   .device-status-badge.lan{ color:var(--warn); border-color:rgba(255,176,32,.4); background:rgba(255,176,32,.1); }
   .device-status-badge.offline{ color:var(--text-2); border-color:var(--card-border); background:rgba(255,255,255,.03); }
+.device-status-badge.notinstalled{ color:var(--text-2); border-color:var(--card-border); border-style:dashed; background:transparent; }
+.device-row.notinstalled{ opacity:.6; border-style:dashed; }
   .device-detail-row{ display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid var(--card-border); }
   .device-detail-row .k{ color:var(--text-2); }
   .device-detail-row .v{ color:var(--text-0); font-weight:700; text-align:end; }
@@ -1145,7 +1147,7 @@
     <div data-i18n="footerLine1">منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز</div>
     <div class="brand-footer">
       <div class="brand-owner">Designed and Implemented by Creativity Linkers Co.</div>
-      <div class="brand-version">Ver 2.5.7</div>
+      <div class="brand-version">Ver 2.5.8</div>
     </div>
   </footer>
 </div>
@@ -1690,7 +1692,8 @@ const I18N = {
     deviceUploadErrNoFile:'الرجاء اختيار ملف الفيرموير (.bin)', deviceUploadErrBadExt:'الملف لازم يكون بصيغة .bin',
     deviceUploadErrAuth:'تعذر التحقق من هويتك — سجّل الدخول من جديد وحاول مرة أخرى',
     devicesCatTemperature:'منظومة الحرارة', devicesCatFire:'منظومة الحريق', devicesCatGas:'منظومة الغاز',
-    devicesCatMotion:'منظومة الحركة', devicesCatPower:'منظومة الطاقة الكهربائية', devicesCatOther:'أجهزة أخرى' },
+    devicesCatMotion:'منظومة الحركة', devicesCatPower:'منظومة الطاقة الكهربائية', devicesCatOther:'أجهزة أخرى',
+    deviceStatusNotInstalled:'⚪ لم يُنصّب بعد' },
   en:{ title:'Qamha Scada System', navOverview:'🏭 Overview', navWarehouses:'🌡️ Warehouse Temps', navFire:'🔥 Fire Alarm', navGas:'🛢️ Gas Leak',
     labelActive:'Active Systems', labelLastUpdate:'Last Update', labelAlerts:'Active Alerts (click for details)',
     secWarehousesTitle:'Warehouse Temp & Humidity Monitoring',
@@ -1822,7 +1825,8 @@ const I18N = {
     deviceUploadErrNoFile:'Please select the firmware file (.bin)', deviceUploadErrBadExt:'The file must have a .bin extension',
     deviceUploadErrAuth:'Could not verify your identity — please sign in again and retry',
     devicesCatTemperature:'Temperature System', devicesCatFire:'Fire System', devicesCatGas:'Gas System',
-    devicesCatMotion:'Motion System', devicesCatPower:'Electrical Power System', devicesCatOther:'Other Devices' }
+    devicesCatMotion:'Motion System', devicesCatPower:'Electrical Power System', devicesCatOther:'Other Devices',
+    deviceStatusNotInstalled:'⚪ Not installed yet' }
 };
 function t(k){ return (I18N[currentLang] && I18N[currentLang][k]) || k; }
 function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
@@ -3276,7 +3280,31 @@ const DEVICE_FRIENDLY_NAMES = {
   warehouse_7: { ar:'منظومة الحرارة لمنطقة الكهرباء',         en:'Temperature System – Electrical Panel Zone' },
   fire_system_1: { ar:'منظومة إنذار الحريق في معمل المعجنات',    en:'Fire Alarm System – Pastry Factory' },
   fire_system_2: { ar:'منظومة إنذار الحريق في مبنى الإدارة',     en:'Fire Alarm System – Administration Building' },
+  gas_system_1: { ar:'منظومة الغاز - داخل المعمل', en:'Gas System – Inside the Factory' },
+  motion_system_1: { ar:'منظومة الحركة - السياج الخارجي - نقطة 1', en:'Motion System – Perimeter Fence – Point 1' },
+  motion_system_2: { ar:'منظومة الحركة - السياج الخارجي - نقطة 2', en:'Motion System – Perimeter Fence – Point 2' },
+  motion_system_3: { ar:'منظومة الحركة - السياج الخارجي - نقطة 3', en:'Motion System – Perimeter Fence – Point 3' },
+  motion_system_4: { ar:'منظومة الحركة - السياج الخارجي - نقطة 4', en:'Motion System – Perimeter Fence – Point 4' },
+  motion_system_5: { ar:'منظومة الحركة - السياج الخارجي - نقطة 5', en:'Motion System – Perimeter Fence – Point 5' },
+  motion_system_6: { ar:'منظومة الحركة - السياج الخارجي - نقطة 6', en:'Motion System – Perimeter Fence – Point 6' },
+  motion_system_7: { ar:'منظومة الحركة - السياج الخارجي - نقطة 7', en:'Motion System – Perimeter Fence – Point 7' },
+  motion_system_8: { ar:'منظومة الحركة - السياج الخارجي - نقطة 8', en:'Motion System – Perimeter Fence – Point 8' },
+  power_grid:  { ar:'منظومة الطاقة - الكهرباء الوطنية', en:'Power System – National Grid' },
+  power_gen:   { ar:'منظومة الطاقة - المولد',           en:'Power System – Generator' },
+  power_solar: { ar:'منظومة الطاقة - الطاقة الشمسية',   en:'Power System – Solar Power' },
 };
+// ============================================================
+// القائمة الكاملة لكل الأجهزة المخطط لها بالمشروع (منصّبة فعلاً أو لسه بانتظار التركيب) -
+// هذا اللي يخلي واجهة "الأجهزة" تعرض كل جهاز من أول يوم (كـ"غير مُنصّب بعد") حتى قبل ما
+// يوصل أي نبضة منه، فيصير اشتغال الفريق هو بس تنصيب الجهاز فعلياً وتوصيله - وبمجرد ما
+// يرسل أول نبضة، يتحول تلقائياً لحالة متصل (WAN/LAN) بدون أي تعديل إضافي هنا
+const PLANNED_DEVICE_IDS = [
+  'warehouse_1','warehouse_2','warehouse_3','warehouse_4','warehouse_5','warehouse_6','warehouse_7',
+  'fire_system_1','fire_system_2',
+  'gas_system_1',
+  'motion_system_1','motion_system_2','motion_system_3','motion_system_4','motion_system_5','motion_system_6','motion_system_7','motion_system_8',
+  'power_grid','power_gen','power_solar',
+];
 function deviceFriendlyName(deviceId, fallbackLocationName){
   const entry = DEVICE_FRIENDLY_NAMES[deviceId];
   if(entry) return (currentLang==='ar') ? entry.ar : entry.en;
@@ -3284,13 +3312,14 @@ function deviceFriendlyName(deviceId, fallbackLocationName){
 }
 
 function deviceIdsUnion(){
-  const ids = new Set([...Object.keys(devicesData||{}), ...Object.keys(localDevicesData||{})]);
+  const ids = new Set([...PLANNED_DEVICE_IDS, ...Object.keys(devicesData||{}), ...Object.keys(localDevicesData||{})]);
   return Array.from(ids);
 }
 function computeDeviceStatus(deviceId){
   const now = Date.now();
   const cloud = (devicesData||{})[deviceId];
   const local = (localDevicesData||{})[deviceId];
+  if(!cloud && !local) return 'notinstalled'; // ما وصلت ولا نبضة وحدة منه أبداً - لسه بانتظار التركيب
   const cloudFresh = !!(cloud && cloud.lastSeen && (now - Number(cloud.lastSeen)) < DEVICE_ONLINE_THRESHOLD_MS);
   const localFresh = !!(local && local.lastSeen && (now - Number(local.lastSeen)) < DEVICE_ONLINE_THRESHOLD_MS);
   if(cloudFresh) return 'wan';
@@ -3307,6 +3336,7 @@ function getDeviceMerged(deviceId){
 function deviceStatusLabel(status){
   if(status==='wan') return t('deviceStatusWan');
   if(status==='lan') return t('deviceStatusLan');
+  if(status==='notinstalled') return t('deviceStatusNotInstalled');
   return t('deviceStatusOffline');
 }
 
@@ -3361,16 +3391,25 @@ function renderDevicesList(){
   });
 
   wrap.innerHTML = DEVICE_CATEGORY_ORDER.filter(cat=> grouped[cat] && grouped[cat].length).map(cat=>{
-    const catIds = grouped[cat].slice().sort();
+    // ترتيب كل مجموعة حسب ترتيبها بالقائمة المخطط لها (PLANNED_DEVICE_IDS) أولاً، وأي جهاز
+    // جديد مو موجود بهاي القائمة (انضاف لاحقاً بدون ما نحدّث الكود) ينزل لآخر المجموعة أبجدياً
+    const catIds = grouped[cat].slice().sort((a,b)=>{
+      const ia = PLANNED_DEVICE_IDS.indexOf(a), ib = PLANNED_DEVICE_IDS.indexOf(b);
+      if(ia===-1 && ib===-1) return a.localeCompare(b);
+      if(ia===-1) return 1;
+      if(ib===-1) return -1;
+      return ia-ib;
+    });
     const rows = catIds.map(id=>{
       const d = getDeviceMerged(id) || {};
       const status = computeDeviceStatus(id);
       const name = String(deviceFriendlyName(id, d.locationName)).replace(/</g,'&lt;');
       const fw = String(d.firmwareVersion || '--').replace(/</g,'&lt;');
-      return `<div class="device-row" data-device-id="${id}" onclick="openDeviceDetail('${id}')">
+      const rowCls = status==='notinstalled' ? 'device-row notinstalled' : 'device-row';
+      return `<div class="${rowCls}" data-device-id="${id}" onclick="openDeviceDetail('${id}')">
         <div>
           <div class="device-row-name">📟 ${name}</div>
-          <div class="device-row-sub">${id} · ${t('deviceFwLabel')}: ${fw}</div>
+          <div class="device-row-sub">${id}${status==='notinstalled' ? '' : (' · '+t('deviceFwLabel')+': '+fw)}</div>
         </div>
         <span class="device-status-badge ${status}">${deviceStatusLabel(status)}</span>
       </div>`;
