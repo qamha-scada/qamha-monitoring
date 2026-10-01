@@ -488,8 +488,13 @@
   .user-row-name{ font-weight:800; font-size:13px; }
   .user-row-email{ font-size:11px; color:var(--text-2); }
   .device-group{ margin-bottom:18px; }
-.device-group-title{ font-size:12px; font-weight:800; color:var(--text-1); margin:0 0 8px; padding-bottom:6px; border-bottom:1px solid var(--card-border); display:flex; align-items:center; gap:6px; }
+.device-group-title{ font-size:12px; font-weight:800; color:var(--text-1); margin:0 0 8px; padding-bottom:6px; border-bottom:1px solid var(--card-border); display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none; }
+.device-group-title:hover{ color:var(--accent); }
 .device-group-count{ font-weight:600; color:var(--text-2); font-size:11px; }
+.device-group-arrow{ display:inline-block; font-size:10px; transition:transform .15s; color:var(--text-2); }
+.device-group-arrow.open{ transform:rotate(90deg); }
+.device-group-rows{ display:none; }
+.device-group-rows.open{ display:block; }
 .device-row{ padding:12px; border:1px solid var(--card-border); border-radius:10px; margin-bottom:10px; background:rgba(255,255,255,0.02); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; cursor:pointer; transition:.15s; }
   .device-row:hover{ background:rgba(255,255,255,0.05); border-color:var(--accent); }
   .device-row-name{ font-weight:800; font-size:13px; color:var(--text-0); }
@@ -1147,7 +1152,7 @@
     <div data-i18n="footerLine1">منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز</div>
     <div class="brand-footer">
       <div class="brand-owner">Designed and Implemented by Creativity Linkers Co.</div>
-      <div class="brand-version">Ver 2.5.8</div>
+      <div class="brand-version">Ver 2.5.9</div>
     </div>
   </footer>
 </div>
@@ -3376,6 +3381,15 @@ function deviceCategoryLabel(catKey){
   return t(map[catKey] || 'devicesCatOther');
 }
 
+// حالة الطي/الفتح لكل مجموعة (محفوظة بمتغير بالذاكرة فقط - تنرجع كلها مطوية
+// لما تفتح الواجهة من جديد) - كل المجموعات تبدأ مطوية، وبالضغط على عنوان أي
+// مجموعة تنفتح/تنطوي هي بس بدون ما تأثر على بقية المجموعات
+let deviceGroupExpanded = {};
+window.toggleDeviceGroup = function(cat){
+  deviceGroupExpanded[cat] = !deviceGroupExpanded[cat];
+  renderDevicesList();
+};
+
 function renderDevicesList(){
   const wrap = document.getElementById('devicesListWrap');
   if(!wrap || !document.getElementById('devicesAdminModal').classList.contains('show')) return;
@@ -3414,9 +3428,13 @@ function renderDevicesList(){
         <span class="device-status-badge ${status}">${deviceStatusLabel(status)}</span>
       </div>`;
     }).join('');
+    const isOpen = !!deviceGroupExpanded[cat];
     return `<div class="device-group">
-      <div class="device-group-title">${deviceCategoryIcon(cat)} ${deviceCategoryLabel(cat)} <span class="device-group-count">(${catIds.length})</span></div>
-      ${rows}
+      <div class="device-group-title" onclick="toggleDeviceGroup('${cat}')">
+        <span class="device-group-arrow ${isOpen?'open':''}">▶</span>
+        ${deviceCategoryIcon(cat)} ${deviceCategoryLabel(cat)} <span class="device-group-count">(${catIds.length})</span>
+      </div>
+      <div class="device-group-rows ${isOpen?'open':''}">${rows}</div>
     </div>`;
   }).join('');
 }
