@@ -1152,7 +1152,7 @@
     <div data-i18n="footerLine1">منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز</div>
     <div class="brand-footer">
       <div class="brand-owner">Designed and Implemented by Creativity Linkers Co.</div>
-      <div class="brand-version">Ver 2.5.10</div>
+      <div class="brand-version">Ver 2.5.11</div>
     </div>
   </footer>
 </div>
@@ -5521,7 +5521,14 @@ function checkMotionZonesOffline(){
   if(changed) renderMotionZones();
 }
 window.motionSilence = function(){ motionSilenced = !motionSilenced; renderMotionZones(); };
-window.motionReset = function(){ motionZones.forEach(z=>{ z.status = lastSeenMotion[z.id] ? 'normal' : 'offline'; }); motionSilenced=false; renderMotionZones(); };
+window.motionReset = function(){
+  motionZones.forEach(z=>{ z.status = lastSeenMotion[z.id] ? 'normal' : 'offline'; }); motionSilenced=false; renderMotionZones();
+  // أمر إعادة تعيين للأجهزة: الإنذار بفيرموير الحركة مثبّت (Latch) ولا ينطفي إلا بهذا الأمر.
+  // نكتبه بفايربيس وبالسيرفر المحلي سوا (الجهاز يفحص المسارين)، وأي تغيير بقيمة id = أمر جديد
+  const cmd = { id: Date.now(), at: Date.now() };
+  try{ if(fbDb && fbRef && fbSet) fbSet(fbRef(fbDb, 'motionReset'), cmd).catch(e=>console.warn('motionReset cloud write failed', e)); }catch(e){}
+  try{ fetch(localUrl('motionReset'), { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(cmd) }).catch(()=>{}); }catch(e){}
+};
 window.motionTest = function(){ const z = motionZones[Math.floor(Math.random()*motionZones.length)]; lastSeenMotion[z.id]=Date.now(); z.status='alarm'; renderMotionZones(); };
 
 /* ==========================================================
