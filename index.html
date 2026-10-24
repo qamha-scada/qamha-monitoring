@@ -1152,7 +1152,7 @@
     <div data-i18n="footerLine1">منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز</div>
     <div class="brand-footer">
       <div class="brand-owner">Designed and Implemented by Creativity Linkers Co.</div>
-      <div class="brand-version">Ver 2.5.15</div>
+      <div class="brand-version">Ver 2.5.16</div>
     </div>
   </footer>
 </div>
@@ -1285,15 +1285,12 @@
         <span data-i18n="deviceVersionLabel">رقم النسخة الجديد (مثال: 1.0.20)</span>
         <input type="text" id="deviceUploadVersion" style="width:100%;margin-top:4px;background:rgba(255,255,255,.05);border:1px solid var(--card-border);color:var(--text-0);border-radius:6px;padding:8px;box-sizing:border-box;">
       </label>
-      <label style="font-size:11px;color:var(--text-1);display:block;margin-bottom:10px;">
-        <span data-i18n="deviceVersionFileLabel">أو ارفع ملف الفيرجن (version.txt) بدل الكتابة</span>
-        <input type="file" id="deviceUploadVersionFile" accept=".txt,text/plain" onchange="onVersionFilePicked(this)" style="width:100%;margin-top:4px;background:rgba(255,255,255,.05);border:1px solid var(--card-border);color:var(--text-0);border-radius:6px;padding:8px;box-sizing:border-box;">
-      </label>
-      <label style="font-size:11px;color:var(--text-1);display:block;margin-bottom:6px;">
-        <span data-i18n="deviceFileLabel">ملف الفيرموير (.bin)</span>
-        <input type="file" id="deviceUploadFile" accept=".bin,.txt" multiple onchange="onFirmwareFilesPicked(this)" style="width:100%;margin-top:4px;background:rgba(255,255,255,.05);border:1px solid var(--card-border);color:var(--text-0);border-radius:6px;padding:8px;box-sizing:border-box;">
-      </label>
-      <div style="font-size:10.5px;color:var(--text-2);margin-bottom:10px;" data-i18n="deviceFilePickHint">تقدر تحدد ملف firmware.bin وملف version.txt سوا بنفس النافذة (Ctrl أو Shift) وتنقرأ النسخة تلقائياً.</div>
+      <div id="deviceDropZone" onclick="document.getElementById('deviceUploadFile').click()" ondragover="event.preventDefault();this.style.borderColor='var(--ok)'" ondragleave="this.style.borderColor=''" ondrop="event.preventDefault();this.style.borderColor='';onFirmwareFilesPicked({files:event.dataTransfer.files})" style="border:2px dashed var(--card-border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;margin-bottom:8px;background:rgba(255,255,255,.03);">
+        <div style="font-weight:800;font-size:13px;" data-i18n="deviceDropTitle">📦 اسحب الملفات هنا أو اضغط للاختيار</div>
+        <div style="font-size:10.5px;color:var(--text-2);margin-top:4px;" data-i18n="deviceDropHint">ارفع من مكان واحد: ملف firmware.bin + ملف version.txt سوا، أو ملف zip الجاهز (-ready.zip) وهو ياخذ الاثنين.</div>
+        <div id="deviceDropList" style="font-size:11.5px;margin-top:8px;color:var(--text-1);"></div>
+      </div>
+      <input type="file" id="deviceUploadFile" accept=".bin,.txt,.zip" multiple onchange="onFirmwareFilesPicked(this)" style="display:none;">
       <div id="deviceVersionInfo" style="font-size:11.5px;margin-bottom:10px;display:none;"></div>
       <div id="deviceUploadStatus" style="font-size:12px;margin-bottom:10px;display:none;"></div>
       <button class="export-btn" style="width:100%;" id="deviceUploadBtn" onclick="uploadDeviceFirmware()" data-i18n="deviceUploadBtn">⬆️ رفع وتحديث الجهاز الآن</button>
@@ -1697,6 +1694,7 @@ const I18N = {
     deviceInternetDropsLabel:'انقطاعات الإنترنت', deviceLastOutageLabel:'مدة آخر انقطاع إنترنت', deviceUptimeLabel:'مدة التشغيل',
     deviceOtaBlockedLabel:'تحديث متوقف (حماية)',
     deviceVersionFileLabel:'أو ارفع ملف الفيرجن (version.txt) بدل الكتابة',
+    deviceDropTitle:'📦 اسحب الملفات هنا أو اضغط للاختيار', deviceDropHint:'ارفع من مكان واحد: ملف firmware.bin + ملف version.txt سوا، أو ملف zip الجاهز (-ready.zip) وهو ياخذ الاثنين.',
     deviceFilePickHint:'تقدر تحدد ملف firmware.bin وملف version.txt سوا بنفس النافذة (Ctrl أو Shift) وتنقرأ النسخة تلقائياً.',
     deviceVersionFromFile:'✓ النسخة من الملف', deviceVersionBadTxt:'❌ ملف الفيرجن غير صالح: لازم يحتوي رقم النسخة فقط (مثل 1.4.1)',
     deviceVersionNotInBin:'⚠️ رقم النسخة "{v}" غير موجود داخل ملف الفيرموير. غالباً الملف من نسخة ثانية، وإذا رفعته الجهاز ممكن يدخل حلقة تحديث متكررة.\n\nهل تريد المتابعة رغم ذلك؟',
@@ -1838,6 +1836,7 @@ const I18N = {
     deviceInternetDropsLabel:'Internet drops', deviceLastOutageLabel:'Last internet outage', deviceUptimeLabel:'Uptime',
     deviceOtaBlockedLabel:'Update blocked (loop guard)',
     deviceVersionFileLabel:'Or upload the version file (version.txt) instead of typing',
+    deviceDropTitle:'📦 Drop files here or click to choose', deviceDropHint:'Upload from one place: firmware.bin + version.txt together, or the ready zip (-ready.zip) which carries both.',
     deviceFilePickHint:'You can select firmware.bin and version.txt together in the same dialog (Ctrl or Shift); the version is read automatically.',
     deviceVersionFromFile:'✓ Version from file', deviceVersionBadTxt:'❌ Invalid version file: it must contain only the version number (e.g. 1.4.1)',
     deviceVersionNotInBin:'⚠️ The version "{v}" was not found inside the firmware file. It is probably from a different build; uploading it may put the device in a repeated-update loop.\n\nContinue anyway?',
@@ -3468,8 +3467,8 @@ window.openDeviceDetail = function(deviceId){
   document.getElementById('devicesAdminModal').classList.remove('show');
   document.getElementById('deviceDetailModal').classList.add('show');
   document.getElementById('deviceUploadVersion').value = '';
-  document.getElementById('deviceUploadFile').value = '';
-  document.getElementById('deviceUploadVersionFile').value = '';
+  document.getElementById('deviceUploadFile').value = ''; pendingBin = null;
+  { const dl = document.getElementById('deviceDropList'); if(dl) dl.innerHTML = ''; }
   const verInfoEl = document.getElementById('deviceVersionInfo'); verInfoEl.style.display = 'none'; verInfoEl.textContent = '';
   const statusEl = document.getElementById('deviceUploadStatus');
   statusEl.style.display = 'none'; statusEl.textContent = '';
@@ -3583,25 +3582,59 @@ async function applyVersionFromTxtFile(file){
   setVersionInfo(t('deviceVersionFromFile') + ': ' + v, true);
   return true;
 }
-window.onVersionFilePicked = async function(input){
-  const f = input.files && input.files[0];
-  if(!f) return;
-  const ok = await applyVersionFromTxtFile(f);
-  if(!ok) input.value = '';
-};
-// خانة ملف الفيرموير تقبل اختيار .bin و .txt سوا: الـ.txt يعبّي النسخة، والـ.bin يبقى بالخانة
+// ---- رفع موحّد: .bin + version.txt أو zip جاهز ----
+let pendingBin = null; // File أو Blob باسم firmware.bin
+async function unzipEntries(file){
+  const buf = new Uint8Array(await file.arrayBuffer());
+  const dv = new DataView(buf.buffer);
+  let e = -1;
+  for(let i = buf.length - 22; i >= Math.max(0, buf.length - 70000); i--){ if(dv.getUint32(i, true) === 0x06054b50){ e = i; break; } }
+  if(e < 0) throw new Error('bad zip');
+  const count = dv.getUint16(e + 10, true);
+  let p = dv.getUint32(e + 16, true);
+  const out = [];
+  for(let n = 0; n < count; n++){
+    if(dv.getUint32(p, true) !== 0x02014b50) break;
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+    const nl = dv.getUint16(p + 28, true), el = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), lho = dv.getUint32(p + 42, true);
+    const name = new TextDecoder().decode(buf.subarray(p + 46, p + 46 + nl)).split(/[\\/]/).pop();
+    p += 46 + nl + el + cl;
+    if(!name) continue;
+    const lnl = dv.getUint16(lho + 26, true), lel = dv.getUint16(lho + 28, true);
+    const start = lho + 30 + lnl + lel;
+    let data = buf.subarray(start, start + csize);
+    if(method === 8){
+      const ds = new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      data = new Uint8Array(await new Response(ds).arrayBuffer());
+    } else if(method !== 0){ continue; }
+    out.push({ name, data });
+  }
+  return out;
+}
 window.onFirmwareFilesPicked = async function(input){
   const files = Array.from(input.files || []);
-  const txt = files.find(f => /\.txt$/i.test(f.name));
-  const bin = files.find(f => /\.bin$/i.test(f.name));
-  if(txt) await applyVersionFromTxtFile(txt);
-  if(txt){
+  let bin = null, verText = null, info = [];
+  for(const f of files){
+    const n = f.name.toLowerCase();
     try{
-      const dt = new DataTransfer();
-      if(bin) dt.items.add(bin);
-      input.files = dt.files;
-    }catch(e){ if(!bin) input.value = ''; }
+      if(n.endsWith('.zip')){
+        for(const en of await unzipEntries(f)){
+          const en_n = en.name.toLowerCase();
+          if(en_n.endsWith('.bin')){ bin = new File([en.data], 'firmware.bin'); info.push('✓ ' + f.name + ' → ' + en.name); }
+          else if(en_n === 'version.txt'){ verText = new TextDecoder().decode(en.data); }
+        }
+      } else if(n.endsWith('.bin')){ bin = f; info.push('✓ ' + f.name); }
+      else if(n.endsWith('.txt')){ verText = await f.text(); info.push('✓ ' + f.name); }
+    }catch(err){ info.push('❌ ' + f.name); console.warn(err); }
   }
+  if(bin) pendingBin = bin;
+  if(verText !== null){
+    const v = (verText.replace(/^\uFEFF/, '').split(/\r?\n/)[0] || '').trim();
+    if(VERSION_RE.test(v)){ document.getElementById('deviceUploadVersion').value = v; setVersionInfo(t('deviceVersionFromFile') + ': ' + v, true); }
+    else setVersionInfo(t('deviceVersionBadTxt'), false);
+  }
+  const list = document.getElementById('deviceDropList');
+  if(list) list.innerHTML = info.map(x => '<div>' + x.replace(/</g, '&lt;') + '</div>').join('') + (pendingBin ? '<div style="color:var(--text-2)">firmware.bin: ' + Math.round(pendingBin.size / 1024) + ' KB</div>' : '');
 };
 
 window.uploadDeviceFirmware = async function(){
@@ -3609,14 +3642,12 @@ window.uploadDeviceFirmware = async function(){
   const statusEl = document.getElementById('deviceUploadStatus');
   const btn = document.getElementById('deviceUploadBtn');
   const version = document.getElementById('deviceUploadVersion').value.trim();
-  const fileInput = document.getElementById('deviceUploadFile');
-  const file = fileInput.files && fileInput.files[0];
+  const file = pendingBin;
 
   statusEl.style.display = 'block';
   if(!version){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceUploadErrNoVersion'); return; }
   if(!file){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceUploadErrNoFile'); return; }
-  if(!file.name.toLowerCase().endsWith('.bin')){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceUploadErrBadExt'); return; }
-  if(!currentAuthUser){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceUploadErrAuth'); return; }
+    if(!currentAuthUser){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceUploadErrAuth'); return; }
   if(!VERSION_RE.test(version)){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceVersionBadTxt'); return; }
 
   // حماية من حلقة التحديث: رقم النسخة لازم يكون موجود نصياً داخل ملف الـbin (الفيرموير يطبعه بالشاشة
@@ -3645,7 +3676,7 @@ window.uploadDeviceFirmware = async function(){
     if(res.ok && data.ok){
       statusEl.style.color = 'var(--ok)';
       statusEl.textContent = t('deviceUploadSuccess');
-      document.getElementById('deviceUploadFile').value = '';
+      document.getElementById('deviceUploadFile').value = ''; pendingBin = null; document.getElementById('deviceDropList').innerHTML = '';
     } else {
       statusEl.style.color = 'var(--danger)';
       statusEl.textContent = t('deviceUploadFailed') + (data.error ? (' — '+data.error) : '');
