@@ -1687,6 +1687,8 @@ const I18N = {
     deviceIdLabel:'معرّف الجهاز', deviceStatusLabel:'حالة الاتصال', deviceLocationLabel:'مكان التنصيب',
     deviceBoardLabel:'موديل الكارت', deviceFwLabel:'نسخة الفيرموير', deviceLocalIpLabel:'عنوان IP المحلي',
     deviceRssiLabel:'قوة الإشارة', deviceLastSeenLabel:'آخر ظهور',
+    deviceResetReasonLabel:'سبب آخر إقلاع', deviceBootCountLabel:'عدد مرات الإقلاع', deviceWifiDropsLabel:'انقطاعات الواي فاي',
+    deviceInternetDropsLabel:'انقطاعات الإنترنت', deviceLastOutageLabel:'مدة آخر انقطاع إنترنت', deviceUptimeLabel:'مدة التشغيل',
     deviceUploadTitle:'⬆️ رفع فيرموير جديد لهذا الجهاز',
     deviceUploadNote:'اختر ملف .bin المصدَّر من Arduino IDE (Sketch → Export Compiled Binary)، وحدد رقم النسخة الجديد. الجهاز لازم يكون متصل بالإنترنت (WAN) حتى يستلم التحديث فوراً.',
     deviceVersionLabel:'رقم النسخة الجديد (مثال: 1.0.20)', deviceFileLabel:'ملف الفيرموير (.bin)',
@@ -1820,6 +1822,8 @@ const I18N = {
     deviceIdLabel:'Device ID', deviceStatusLabel:'Connection status', deviceLocationLabel:'Installation location',
     deviceBoardLabel:'Board model', deviceFwLabel:'Firmware version', deviceLocalIpLabel:'Local IP address',
     deviceRssiLabel:'Signal strength', deviceLastSeenLabel:'Last seen',
+    deviceResetReasonLabel:'Last boot reason', deviceBootCountLabel:'Boot count', deviceWifiDropsLabel:'WiFi drops',
+    deviceInternetDropsLabel:'Internet drops', deviceLastOutageLabel:'Last internet outage', deviceUptimeLabel:'Uptime',
     deviceUploadTitle:'⬆️ Upload new firmware to this device',
     deviceUploadNote:'Choose a .bin file exported from Arduino IDE (Sketch → Export Compiled Binary), and set the new version number. The device must be connected to the internet (WAN) to receive the update immediately.',
     deviceVersionLabel:'New version number (e.g. 1.0.20)', deviceFileLabel:'Firmware file (.bin)',
@@ -3477,6 +3481,33 @@ function renderDeviceDetail(deviceId){
     [t('deviceRssiLabel'), (d.rssi!==undefined && d.rssi!==null) ? (d.rssi+' dBm') : '--'],
     [t('deviceLastSeenLabel'), lastSeenTxt],
   ];
+  // تشخيص الاستقرار (يرسله الفيرموير 3.1.0+): سبب آخر إقلاع وعدادات الانقطاع
+  if(d.resetReason !== undefined){
+    const ar = currentLang==='ar';
+    const reasonMap = {
+      power_on: ar?'تشغيل الطاقة (انقطع/رجع الكهرباء)':'Power on',
+      crash: ar?'انهيار برمجي (crash)':'Software crash',
+      watchdog: ar?'تعليق البرنامج (watchdog)':'Watchdog (hang)',
+      brownout: ar?'هبوط جهد التغذية (brownout)':'Brownout (low supply voltage)',
+      external_reset: ar?'زر ريست خارجي':'External reset',
+      wifi_outage_5min: ar?'ريستارت تلقائي: انقطاع واي فاي 5 دقايق':'Auto: WiFi down 5 min',
+      internet_and_local_outage_10min: ar?'ريستارت تلقائي: انقطاع الإنترنت والسيرفر المحلي 10 دقايق':'Auto: Internet + local server down 10 min',
+      internet_outage_10min: ar?'ريستارت تلقائي: انقطاع إنترنت 10 دقايق':'Auto: Internet down 10 min',
+      settings_saved: ar?'حفظ إعدادات':'Settings saved',
+      manual_restart: ar?'ريستارت يدوي من صفحة الإعدادات':'Manual restart',
+      wifi_forgotten: ar?'مسح بيانات الواي فاي':'WiFi forgotten',
+      boot_button_wifi_reset: ar?'مسح الواي فاي بزر BOOT':'WiFi reset by BOOT button',
+      software: ar?'ريستارت برمجي':'Software restart'
+    };
+    const rr = String(d.resetReason);
+    const fmtDur = (s)=>{ s=Number(s)||0; if(s<60) return s+(ar?' ث':' s'); if(s<3600) return Math.round(s/60)+(ar?' د':' min'); return (s/3600).toFixed(1)+(ar?' س':' h'); };
+    rows.push([t('deviceResetReasonLabel'), (reasonMap[rr]||rr).replace(/</g,'&lt;')]);
+    rows.push([t('deviceBootCountLabel'), d.bootCount ?? '--']);
+    rows.push([t('deviceUptimeLabel'), d.uptimeSec!==undefined ? fmtDur(d.uptimeSec) : '--']);
+    rows.push([t('deviceWifiDropsLabel'), d.wifiDrops ?? '--']);
+    rows.push([t('deviceInternetDropsLabel'), d.internetDrops ?? '--']);
+    rows.push([t('deviceLastOutageLabel'), d.lastInternetOutageSec ? fmtDur(d.lastInternetOutageSec) : '--']);
+  }
   document.getElementById('deviceDetailInfo').innerHTML = rows.map(([k,v])=>
     `<div class="device-detail-row"><span class="k">${k}</span><span class="v">${v}</span></div>`
   ).join('');
