@@ -1152,7 +1152,7 @@
     <div data-i18n="footerLine1">منصة داخلية لمراقبة المخازن ومنظومات الحريق والغاز</div>
     <div class="brand-footer">
       <div class="brand-owner">Designed and Implemented by Creativity Linkers Co.</div>
-      <div class="brand-version">Ver 2.5.12</div>
+      <div class="brand-version">Ver 2.5.15</div>
     </div>
   </footer>
 </div>
@@ -1285,10 +1285,16 @@
         <span data-i18n="deviceVersionLabel">رقم النسخة الجديد (مثال: 1.0.20)</span>
         <input type="text" id="deviceUploadVersion" style="width:100%;margin-top:4px;background:rgba(255,255,255,.05);border:1px solid var(--card-border);color:var(--text-0);border-radius:6px;padding:8px;box-sizing:border-box;">
       </label>
-      <label style="font-size:11px;color:var(--text-1);display:block;margin-bottom:12px;">
-        <span data-i18n="deviceFileLabel">ملف الفيرموير (.bin)</span>
-        <input type="file" id="deviceUploadFile" accept=".bin" style="width:100%;margin-top:4px;background:rgba(255,255,255,.05);border:1px solid var(--card-border);color:var(--text-0);border-radius:6px;padding:8px;box-sizing:border-box;">
+      <label style="font-size:11px;color:var(--text-1);display:block;margin-bottom:10px;">
+        <span data-i18n="deviceVersionFileLabel">أو ارفع ملف الفيرجن (version.txt) بدل الكتابة</span>
+        <input type="file" id="deviceUploadVersionFile" accept=".txt,text/plain" onchange="onVersionFilePicked(this)" style="width:100%;margin-top:4px;background:rgba(255,255,255,.05);border:1px solid var(--card-border);color:var(--text-0);border-radius:6px;padding:8px;box-sizing:border-box;">
       </label>
+      <label style="font-size:11px;color:var(--text-1);display:block;margin-bottom:6px;">
+        <span data-i18n="deviceFileLabel">ملف الفيرموير (.bin)</span>
+        <input type="file" id="deviceUploadFile" accept=".bin,.txt" multiple onchange="onFirmwareFilesPicked(this)" style="width:100%;margin-top:4px;background:rgba(255,255,255,.05);border:1px solid var(--card-border);color:var(--text-0);border-radius:6px;padding:8px;box-sizing:border-box;">
+      </label>
+      <div style="font-size:10.5px;color:var(--text-2);margin-bottom:10px;" data-i18n="deviceFilePickHint">تقدر تحدد ملف firmware.bin وملف version.txt سوا بنفس النافذة (Ctrl أو Shift) وتنقرأ النسخة تلقائياً.</div>
+      <div id="deviceVersionInfo" style="font-size:11.5px;margin-bottom:10px;display:none;"></div>
       <div id="deviceUploadStatus" style="font-size:12px;margin-bottom:10px;display:none;"></div>
       <button class="export-btn" style="width:100%;" id="deviceUploadBtn" onclick="uploadDeviceFirmware()" data-i18n="deviceUploadBtn">⬆️ رفع وتحديث الجهاز الآن</button>
     </div>
@@ -1690,6 +1696,11 @@ const I18N = {
     deviceResetReasonLabel:'سبب آخر إقلاع', deviceBootCountLabel:'عدد مرات الإقلاع', deviceWifiDropsLabel:'انقطاعات الواي فاي',
     deviceInternetDropsLabel:'انقطاعات الإنترنت', deviceLastOutageLabel:'مدة آخر انقطاع إنترنت', deviceUptimeLabel:'مدة التشغيل',
     deviceOtaBlockedLabel:'تحديث متوقف (حماية)',
+    deviceVersionFileLabel:'أو ارفع ملف الفيرجن (version.txt) بدل الكتابة',
+    deviceFilePickHint:'تقدر تحدد ملف firmware.bin وملف version.txt سوا بنفس النافذة (Ctrl أو Shift) وتنقرأ النسخة تلقائياً.',
+    deviceVersionFromFile:'✓ النسخة من الملف', deviceVersionBadTxt:'❌ ملف الفيرجن غير صالح: لازم يحتوي رقم النسخة فقط (مثل 1.4.1)',
+    deviceVersionNotInBin:'⚠️ رقم النسخة "{v}" غير موجود داخل ملف الفيرموير. غالباً الملف من نسخة ثانية، وإذا رفعته الجهاز ممكن يدخل حلقة تحديث متكررة.\n\nهل تريد المتابعة رغم ذلك؟',
+    deviceVersionInBin:'✓ رقم النسخة مطابق للموجود داخل ملف الفيرموير',
     deviceUploadTitle:'⬆️ رفع فيرموير جديد لهذا الجهاز',
     deviceUploadNote:'اختر ملف .bin المصدَّر من Arduino IDE (Sketch → Export Compiled Binary)، وحدد رقم النسخة الجديد. الجهاز لازم يكون متصل بالإنترنت (WAN) حتى يستلم التحديث فوراً.',
     deviceVersionLabel:'رقم النسخة الجديد (مثال: 1.0.20)', deviceFileLabel:'ملف الفيرموير (.bin)',
@@ -1826,6 +1837,11 @@ const I18N = {
     deviceResetReasonLabel:'Last boot reason', deviceBootCountLabel:'Boot count', deviceWifiDropsLabel:'WiFi drops',
     deviceInternetDropsLabel:'Internet drops', deviceLastOutageLabel:'Last internet outage', deviceUptimeLabel:'Uptime',
     deviceOtaBlockedLabel:'Update blocked (loop guard)',
+    deviceVersionFileLabel:'Or upload the version file (version.txt) instead of typing',
+    deviceFilePickHint:'You can select firmware.bin and version.txt together in the same dialog (Ctrl or Shift); the version is read automatically.',
+    deviceVersionFromFile:'✓ Version from file', deviceVersionBadTxt:'❌ Invalid version file: it must contain only the version number (e.g. 1.4.1)',
+    deviceVersionNotInBin:'⚠️ The version "{v}" was not found inside the firmware file. It is probably from a different build; uploading it may put the device in a repeated-update loop.\n\nContinue anyway?',
+    deviceVersionInBin:'✓ Version matches the one inside the firmware file',
     deviceUploadTitle:'⬆️ Upload new firmware to this device',
     deviceUploadNote:'Choose a .bin file exported from Arduino IDE (Sketch → Export Compiled Binary), and set the new version number. The device must be connected to the internet (WAN) to receive the update immediately.',
     deviceVersionLabel:'New version number (e.g. 1.0.20)', deviceFileLabel:'Firmware file (.bin)',
@@ -3453,6 +3469,8 @@ window.openDeviceDetail = function(deviceId){
   document.getElementById('deviceDetailModal').classList.add('show');
   document.getElementById('deviceUploadVersion').value = '';
   document.getElementById('deviceUploadFile').value = '';
+  document.getElementById('deviceUploadVersionFile').value = '';
+  const verInfoEl = document.getElementById('deviceVersionInfo'); verInfoEl.style.display = 'none'; verInfoEl.textContent = '';
   const statusEl = document.getElementById('deviceUploadStatus');
   statusEl.style.display = 'none'; statusEl.textContent = '';
   renderDeviceDetail(deviceId);
@@ -3502,9 +3520,20 @@ function renderDeviceDetail(deviceId){
       wifi_reset_serial: ar?'مسح الواي فاي عبر Serial':'WiFi reset via Serial',
       software: ar?'ريستارت برمجي':'Software restart'
     };
-    const rr = String(d.resetReason);
+    // السبب ممكن يجي بصيغة "watchdog@sendFb" = علّق/انهار أثناء مرحلة معينة من البرنامج (فيرموير الحريق 3.1.1+)
+    const stageMap = {
+      boot: ar?'الإقلاع':'boot', settings: ar?'صفحة الإعدادات المحلية':'settings page', read: ar?'قراءة الحساسات':'reading inputs',
+      sendFb: ar?'إرسال بيانات Firebase':'sending to Firebase', sendLocal: ar?'إرسال للسيرفر المحلي':'sending to local server',
+      logs: ar?'تسجيل السجل':'writing logs', hostFetch: ar?'جلب عنوان السيرفر المحلي':'fetching local server host',
+      ota: ar?'فحص التحديث OTA':'OTA check', heartbeat: ar?'نبضة الجهاز':'device heartbeat',
+      otaFast: ar?'فحص أمر التحديث':'OTA command check', wifiMon: ar?'مراقبة الواي فاي':'WiFi monitor',
+      thresholds: ar?'جلب الرينج من لوحة الإدارة':'fetching thresholds', netMon: ar?'مراقبة الشبكة':'network monitor'
+    };
+    let rr = String(d.resetReason), stageTxt = '';
+    const atIdx = rr.indexOf('@');
+    if(atIdx > 0){ const stg = rr.slice(atIdx+1); rr = rr.slice(0, atIdx); stageTxt = (stageMap[stg] || stg); }
     const fmtDur = (s)=>{ s=Number(s)||0; if(s<60) return s+(ar?' ث':' s'); if(s<3600) return Math.round(s/60)+(ar?' د':' min'); return (s/3600).toFixed(1)+(ar?' س':' h'); };
-    rows.push([t('deviceResetReasonLabel'), (reasonMap[rr]||rr).replace(/</g,'&lt;')]);
+    rows.push([t('deviceResetReasonLabel'), ((reasonMap[rr]||rr) + (stageTxt ? (ar?' — أثناء: ':' — during: ') + stageTxt : '')).replace(/</g,'&lt;')]);
     rows.push([t('deviceBootCountLabel'), d.bootCount ?? '--']);
     rows.push([t('deviceUptimeLabel'), d.uptimeSec!==undefined ? fmtDur(d.uptimeSec) : '--']);
     rows.push([t('deviceWifiDropsLabel'), d.wifiDrops ?? '--']);
@@ -3538,6 +3567,43 @@ function fileToBase64(file){
   });
 }
 
+// ---- قراءة رقم النسخة من ملف نصي (version.txt): أول سطر فقط، بعد إزالة BOM والمسافات ----
+const VERSION_RE = /^[0-9A-Za-z][0-9A-Za-z._-]{0,39}$/;
+function setVersionInfo(msg, ok){
+  const el = document.getElementById('deviceVersionInfo');
+  el.style.display = msg ? 'block' : 'none';
+  el.style.color = ok ? 'var(--ok)' : 'var(--danger)';
+  el.textContent = msg || '';
+}
+async function applyVersionFromTxtFile(file){
+  let v = '';
+  try{ v = ((await file.text()).replace(/^﻿/, '').split(/\r?\n/)[0] || '').trim(); }catch(e){ v = ''; }
+  if(!VERSION_RE.test(v)){ setVersionInfo(t('deviceVersionBadTxt'), false); return false; }
+  document.getElementById('deviceUploadVersion').value = v;
+  setVersionInfo(t('deviceVersionFromFile') + ': ' + v, true);
+  return true;
+}
+window.onVersionFilePicked = async function(input){
+  const f = input.files && input.files[0];
+  if(!f) return;
+  const ok = await applyVersionFromTxtFile(f);
+  if(!ok) input.value = '';
+};
+// خانة ملف الفيرموير تقبل اختيار .bin و .txt سوا: الـ.txt يعبّي النسخة، والـ.bin يبقى بالخانة
+window.onFirmwareFilesPicked = async function(input){
+  const files = Array.from(input.files || []);
+  const txt = files.find(f => /\.txt$/i.test(f.name));
+  const bin = files.find(f => /\.bin$/i.test(f.name));
+  if(txt) await applyVersionFromTxtFile(txt);
+  if(txt){
+    try{
+      const dt = new DataTransfer();
+      if(bin) dt.items.add(bin);
+      input.files = dt.files;
+    }catch(e){ if(!bin) input.value = ''; }
+  }
+};
+
 window.uploadDeviceFirmware = async function(){
   if(!currentDeviceDetailId) return;
   const statusEl = document.getElementById('deviceUploadStatus');
@@ -3551,6 +3617,19 @@ window.uploadDeviceFirmware = async function(){
   if(!file){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceUploadErrNoFile'); return; }
   if(!file.name.toLowerCase().endsWith('.bin')){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceUploadErrBadExt'); return; }
   if(!currentAuthUser){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceUploadErrAuth'); return; }
+  if(!VERSION_RE.test(version)){ statusEl.style.color = 'var(--danger)'; statusEl.textContent = t('deviceVersionBadTxt'); return; }
+
+  // حماية من حلقة التحديث: رقم النسخة لازم يكون موجود نصياً داخل ملف الـbin (الفيرموير يطبعه بالشاشة
+  // والـSerial)، لو غير موجود غالباً الملف من نسخة ثانية فنحذّر قبل الرفع
+  try{
+    const head = new TextDecoder('latin1').decode(new Uint8Array(await file.arrayBuffer()));
+    if(head.includes(version)){
+      setVersionInfo(t('deviceVersionInBin'), true);
+    } else if(!window.confirm(t('deviceVersionNotInBin').replace('{v}', version))){
+      statusEl.style.display = 'none';
+      return;
+    }
+  }catch(e){ console.warn('bin version check skipped', e); }
 
   btn.disabled = true;
   statusEl.style.color = 'var(--text-1)';
